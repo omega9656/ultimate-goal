@@ -1,8 +1,10 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-public class Placeholder extends OpMode {
+@Autonomous(name="Red", group="MCC")
+public class Red extends OpMode {
     @Override
     public void init() {
         // TODO write stuff
