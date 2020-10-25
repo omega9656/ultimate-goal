@@ -14,8 +14,8 @@ public class Arm {
     /** Grabber mode */
     public enum Mode {
         // TODO tune servo positions
-        GRAB(0),
-        RELEASE(0);
+        CLOSE(0),
+        OPEN(0);
 
         public double servoPos;
 
@@ -26,10 +26,17 @@ public class Arm {
 
     /** Joint position */
     public enum Position {
+        // resting against hard stop; this is also init position
+        STOWED(0),
+
         // TODO tune target positions
-        UP(0),
-        DOWN(0),
-        CARRY(0);
+        // 90 deg CCW from STOWED (vertically straight up)
+        // used when moving the wobble goal from one location to another
+        CARRY(0),
+
+        // 90 deg CCW from CARRY (horizontally straight across)
+        // used when grabbing/releasing the wobble goal on the ground
+        DOWN(0);
 
         public int targetPos;
 
@@ -47,12 +54,13 @@ public class Arm {
         joint = deviceManager.joint;
         grabber = deviceManager.grabber;
 
-        // TODO may need to STOP_AND_RESET_ENCODER? depends on init position
+        // assume it is manually put into stowed position at the start of each match
+        joint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // stowed is considered 0
         joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // set default state
-        grabberMode = Mode.RELEASE;
-        jointPosition = Position.UP;
+        grabberMode = Mode.OPEN;
+        jointPosition = Position.STOWED;
     }
 
     /**
