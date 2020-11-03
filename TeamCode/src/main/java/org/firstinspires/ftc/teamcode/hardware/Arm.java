@@ -5,11 +5,15 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm {
-    public DcMotorEx joint;  // controls angle of arm
+    public DcMotorEx joint;  // controls angle of arm - 50.9:1 goBILDA yellow jacket planetary
     public Servo grabber;  // controls whether the claw is open/closed
 
     public Mode grabberMode;
     public Position jointPosition;
+
+    // "encoder countable events per revolution" on goBILDA spec sheet
+    // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-50-9-1-ratio-117-rpm-3-3-5v-encoder/
+    public static final double TICKS_PER_REVOLUTION = 1425.2;
 
     /** Grabber mode */
     public enum Mode {
@@ -29,14 +33,13 @@ public class Arm {
         // resting against hard stop; this is also init position
         STOWED(0),
 
-        // TODO tune target positions
         // 90 deg CCW from STOWED (vertically straight up)
         // used when moving the wobble goal from one location to another
-        CARRY(0),
+        CARRY(degreesToTicks(90)),
 
-        // 90 deg CCW from CARRY (horizontally straight across)
+        // 180 deg CCW from STOWED (horizontally straight across)
         // used when grabbing/releasing the wobble goal on the ground
-        DOWN(0);
+        DOWN(degreesToTicks(180));
 
         public int targetPos;
 
@@ -64,7 +67,23 @@ public class Arm {
     }
 
     /**
-     * Lifts the arm based on the given arm position
+     * Returns the number of encoder ticks for this motor
+     * for the given number of degrees
+     * <p> This could result in some error because the method
+     * casts the calculation to an <code>int</code> (encoder values are integers),
+     * but the ticks per revolution of this motor is a <code>double</code>.
+     * </p>
+     * @param degrees  angle of rotation (counter-clockwise is positive)
+     * @return the number of encoder ticks for this motor
+     * for the given number of degrees
+     */
+    public static int degreesToTicks(int degrees) {
+        final int DEGREES_PER_REVOLUTION = 360;
+        return (int) ((TICKS_PER_REVOLUTION / DEGREES_PER_REVOLUTION) * degrees);
+    }
+
+    /**
+     * Sets the joint position
      * @param position  arm position
      */
     public void setJointPosition(Position position) {
@@ -72,12 +91,37 @@ public class Arm {
         jointPosition = position;
     }
 
+    /** Puts the joint in the stowed position */
+    public void stow() {
+        setJointPosition(Position.STOWED);
+    }
+
+    /** Puts the joint in the carry position */
+    public void carry() {
+        setJointPosition(Position.CARRY);
+    }
+
+    /** Puts the joint in the down position */
+    public void down() {
+        setJointPosition(Position.DOWN);
+    }
+
     /**
-     * Opens or closes the grabber given the grabber mode
+     * Sets the grabber mode
      * @param mode  grabber mode
      */
     public void setGrabberMode(Mode mode) {
         grabber.setPosition(mode.servoPos);
         grabberMode = mode;
+    }
+
+    /** Opens the grabber */
+    public void open() {
+        setGrabberMode(Mode.OPEN);
+    }
+
+    /** Closes the grabber */
+    public void close() {
+        setGrabberMode(Mode.CLOSE);
     }
 }

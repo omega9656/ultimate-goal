@@ -10,7 +10,6 @@ public class Intake {
     public Mode state;
 
     public enum Mode {
-        // TODO tune motor power levels
         IN(1, -1),
         OUT(-0.3, 0.3),  // slightly lower power to avoid launching when outtaking
         STOP(0, 0);
@@ -56,5 +55,20 @@ public class Intake {
         right.setPower(mode.rightPower);
 
         state = mode;
+    }
+
+    /** Intakes rings */
+    public void in() {
+        run(Mode.IN);
+    }
+
+    /** Outtakes rings */
+    public void out() {
+        run(Mode.OUT);
+    }
+
+    /** Stops the intake motors */
+    public void stop() {
+        run(Mode.STOP);
     }
 }

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Robot {
@@ -15,7 +13,7 @@ public class Robot {
     /**
      * Constructs a <code>Robot</code> object given
      * the OpMode's <code>HardwareMap</code>
-     * @param hardwareMap
+     * @param hardwareMap  hardware map
      */
     public Robot(HardwareMap hardwareMap) {
         deviceManager = new DeviceManager(hardwareMap);

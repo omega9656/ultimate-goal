@@ -5,6 +5,12 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
+/**
+ * The <code>DeviceManager</code> class is used to configure
+ * hardware objects in code with the REV Control/Expansion Hub.
+ * Credit to FTC 16197 SWARM for this idea.
+ * @see Robot
+ */
 public class DeviceManager {
     public HardwareMap hardwareMap;
 
@@ -19,8 +25,7 @@ public class DeviceManager {
     public DcMotorEx rightIntake;
 
     // shooter hardware
-    public DcMotorEx leftShooter;
-    public DcMotorEx rightShooter;
+    public DcMotorEx shooter;
 
     // arm hardware
     public DcMotorEx joint;
@@ -53,8 +58,7 @@ public class DeviceManager {
         rightIntake = hardwareMap.get(DcMotorEx.class, "right_intake");
 
         // configure shooter hardware
-        leftShooter = hardwareMap.get(DcMotorEx.class, "left_shooter");
-        rightShooter = hardwareMap.get(DcMotorEx.class, "right_shooter");
+        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
 
         // configure arm hardware
         joint = hardwareMap.get(DcMotorEx.class, "joint");
