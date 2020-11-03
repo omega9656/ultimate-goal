@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.Arm;
 import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
@@ -27,58 +28,94 @@ public class MCCTeleOp extends OpMode {
         shoot();
         moveArm();
         moveGrabber();
-        updateTelemetry(telemetry);
     }
-
-
-    // TODO for each subassembly process, do telemetry.addData() for relevant stuff
-    // https://first-tech-challenge.github.io/FtcRobotController/6.0.1/RobotCore/org/firstinspires/ftc/robotcore/external/Telemetry.html
-    // gamepads: https://first-tech-challenge.github.io/FtcRobotController/6.0.1/RobotCore/com/qualcomm/robotcore/hardware/Gamepad.html
 
     public void drive() {
-        // TODO this
+        // TODO mecanum drive (cubed?)
     }
 
+    /**
+     * Runs intake processes depending on gamepad input
+     * and adds data for intake telemetry
+     * G2 left bumper intakes rings
+     * G2 right bumper outtakes rings
+     * Otherwise, intake is stopped
+     */
     public void intake() {
-
-        while (gamepad2.left_bumper){
-            robot.intake.run(Intake.Mode.IN);
-        }
-
-        while (gamepad2.right_bumper){
-            robot.intake.run(Intake.Mode.OUT);
-        }
-
-        robot.intake.run(Intake.Mode.STOP);
-
-    }
-
-    public void shoot() {
-
-        if(gamepad2.a) {
-            robot.shooter.run(Shooter.Mode.SHOOT);
+        if (gamepad2.left_bumper) {
+            robot.intake.in();
+        } else if (gamepad2.right_bumper) {
+            robot.intake.out();
         } else {
-            robot.shooter.run(Shooter.Mode.STOP);
+            robot.intake.stop();
         }
+
+        telemetry.addLine("Intake left")
+                .addData("Power", robot.intake.left.getPower())
+                .addData("Current", "%f amps", robot.intake.left.getCurrent(CurrentUnit.AMPS));
+        telemetry.addLine("Intake right")
+                .addData("Power", robot.intake.right.getPower())
+                .addData("Current", "%f amps", robot.intake.right.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("Intake state", robot.intake.state);
     }
 
+    /**
+     * Runs shooter processes depending on gamepad input
+     * and adds data for shooter telemetry
+     * G2 A button pressed runs shooter motor
+     * Otherwise, shooter motor stops
+     */
+    public void shoot() {
+        if (gamepad2.a) {
+            robot.shooter.shoot();
+        } else {
+            robot.shooter.stop();
+        }
+
+        telemetry.addLine("Shooter")
+                .addData("Velocity", "%f ticks/sec", robot.shooter.motor.getVelocity())
+                .addData("Current", "%f amps", robot.shooter.motor.getCurrent(CurrentUnit.AMPS))
+                .addData("Power", robot.shooter.motor.getPower())
+                .addData("State", robot.shooter.state);
+    }
+
+    /**
+     * Moves the joint of the arm depending on gampepad input
+     * and adds data for arm telemetry
+     * G2 dpad up puts arm in stowed position
+     * G2 dpad down puts arm in down position
+     * G2 dpad left puts arm in carry position
+     */
     public void moveArm() {
-
-        if (gamepad2.dpad_up){
-            robot.arm.setJointPosition(Arm.Position.STOWED);
-        } else if (gamepad2.dpad_down){
-            robot.arm.setJointPosition(Arm.Position.DOWN);
-        } else if (gamepad2.dpad_left){
-            robot.arm.setJointPosition(Arm.Position.CARRY);
+        if (gamepad2.dpad_up) {
+            robot.arm.stow();
+        } else if (gamepad2.dpad_down) {
+            robot.arm.down();
+        } else if (gamepad2.dpad_left) {
+            robot.arm.carry();
         }
+
+        telemetry.addLine("Arm")
+                .addData("Position", robot.arm.joint.getTargetPosition())
+                .addData("Position tolerance", robot.arm.joint.getTargetPositionTolerance()) // todo ask what this is
+                .addData("State", robot.arm.jointPosition);
     }
 
+    /**
+     * Moves the grabber depending on gamepad input
+     * and adds data for grabber telemetry
+     * G2 X button closes the grabber
+     * G2 Y button opens the grabber
+     */
     public void moveGrabber() {
-
         if (gamepad2.x) {
-            robot.arm.setGrabberMode(Arm.Mode.CLOSE);
+            robot.arm.close();
         } else if (gamepad2.y) {
-            robot.arm.setGrabberMode(Arm.Mode.OPEN);
+            robot.arm.open();
         }
+
+        telemetry.addLine("Grabber")
+                .addData("Position", robot.arm.grabber.getPosition())
+                .addData("State", robot.arm.grabberMode);
     }
 }
