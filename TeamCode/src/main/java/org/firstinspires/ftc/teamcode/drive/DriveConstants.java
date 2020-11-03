@@ -5,6 +5,14 @@ import com.acmerobotics.roadrunner.control.PIDCoefficients;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 
 /*
+ * NOTE: For the most part, drive constants for Ultimate Goal have been copied exactly
+ * from the last drive constants from Skystone since the drivetrains are very similar.
+ * https://github.com/omega9656/skystone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java
+ * TODO: More tuning may be needed.
+ */
+
+
+/*
  * Constants shared between multiple drive types.
  *
  * TODO: Tune or adjust the following constants to fit your robot. Note that the non-final
@@ -21,8 +29,9 @@ public class DriveConstants {
     /*
      * These are motor constants that should be listed online for your motors.
      */
-    public static final double TICKS_PER_REV = 1;
-    public static final double MAX_RPM = 1;
+    // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-19-2-1-ratio-312-rpm-3-3-5v-encoder/
+    public static final double TICKS_PER_REV = 537.6;  // encoder countable events per rev (output shaft)
+    public static final double MAX_RPM = 312;  // no-load speed @ 12VDC
 
     /*
      * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
@@ -33,7 +42,7 @@ public class DriveConstants {
      * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(38, 0.8, 16);
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -43,9 +52,17 @@ public class DriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public static double WHEEL_RADIUS = 2; // in
-    public static double GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
-    public static double TRACK_WIDTH = 1; // in
+    // https://www.gobilda.com/96mm-mecanum-wheel-set-70a-durometer-bearing-supported-rollers/
+    // once we get the new mecanum wheels, change this to 1.88976 in (~48 mm)
+    public static double WHEEL_RADIUS = 1.9685; // inches (~50 mm)
+
+    // default gearing value from com.qualcomm.hardware.motors.GoBILDA5202Series divided by actual ratio (19.2:1)
+    public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
+
+    // fusion calculated: 15.5906 in (~396 mm)
+    public static double TRACK_WIDTH = 10; // tuned track width from skystone
+
+    public static double WHEEL_BASE = 13.5; // wheel base from skystone - not sure if this is used?
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -66,7 +83,7 @@ public class DriveConstants {
      * forces acceleration-limited profiling). All distance units are inches.
      */
     public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            30.0, 30.0, 0.0,
+            45.0, 30.0, 0.0,
             Math.toRadians(180.0), Math.toRadians(180.0), 0.0
     );
 
