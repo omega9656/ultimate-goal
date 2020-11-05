@@ -31,7 +31,6 @@ public class MCCTeleOp extends OpMode {
         shoot();
         moveArm();
         moveGrabber();
-        switchTeleOpMode();
     }
 
     /**
@@ -74,8 +73,6 @@ public class MCCTeleOp extends OpMode {
                 .addData("Power", robot.intake.motor.getPower())
                 .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
                 .addData("State", robot.intake.state);
-
-        // todo branch stall automation (reverse for half a sec and pray if current above stall current - see spec sheet)
     }
 
     /**
@@ -165,14 +162,5 @@ public class MCCTeleOp extends OpMode {
         telemetry.addLine("Grabber")
                 .addData("Position", robot.arm.grabber.getPosition())
                 .addData("State", robot.arm.grabberMode);
-    }
-
-    // todo branch switch teleop mode
-    public void switchTeleOpMode() {
-        if (gamepad1.left_trigger > 0.5) {
-            // switch teleop mode to remote
-        } else if (gamepad1.right_trigger > 0.5) {
-            // switch teleop mode to traditional
-        }
     }
 }
