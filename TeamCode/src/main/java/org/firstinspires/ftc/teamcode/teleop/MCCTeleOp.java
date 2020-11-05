@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
-// todo branch state machine
 
 @TeleOp(name="MCC TeleOp")
 public class MCCTeleOp extends OpMode {
@@ -45,13 +44,6 @@ public class MCCTeleOp extends OpMode {
     public void drive() {
         // todo mecanum drive (cubed?)
         // left and right stick for G1 - driving
-
-        // todo branch robot alignment (see video Justin sent on Discord)
-        if (gamepad1.b) {
-            // align to RED goal
-        } else if (gamepad1.x) {
-            // align to BLUE goal
-        }
     }
 
     /**
@@ -74,8 +66,6 @@ public class MCCTeleOp extends OpMode {
                 .addData("Power", robot.intake.motor.getPower())
                 .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
                 .addData("State", robot.intake.state);
-
-        // todo branch stall automation (reverse for half a sec and pray if current above stall current - see spec sheet)
     }
 
     /**
