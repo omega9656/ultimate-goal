@@ -21,11 +21,11 @@ public class DeviceManager {
     public DcMotor frontLeftWheel;
 
     // intake hardware
-    public DcMotorEx leftIntake;
-    public DcMotorEx rightIntake;
+    public DcMotorEx intake;
 
     // shooter hardware
-    public DcMotorEx shooter;
+    public DcMotorEx flywheel;
+    public Servo indexer;
 
     // arm hardware
     public DcMotorEx joint;
@@ -54,11 +54,11 @@ public class DeviceManager {
         frontLeftWheel = hardwareMap.get(DcMotor.class, "front_left_wheel");
 
         // configure intake hardware
-        leftIntake = hardwareMap.get(DcMotorEx.class, "left_intake");
-        rightIntake = hardwareMap.get(DcMotorEx.class, "right_intake");
+        intake = hardwareMap.get(DcMotorEx.class, "intake");
 
         // configure shooter hardware
-        shooter = hardwareMap.get(DcMotorEx.class, "shooter");
+        flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
+        indexer = hardwareMap.get(Servo.class, "indexer");
 
         // configure arm hardware
         joint = hardwareMap.get(DcMotorEx.class, "joint");
