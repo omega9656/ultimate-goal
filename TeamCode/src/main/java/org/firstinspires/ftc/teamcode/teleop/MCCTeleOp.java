@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
-// todo branch state machine
 
 @TeleOp(name="MCC TeleOp")
 public class MCCTeleOp extends OpMode {
@@ -31,7 +30,6 @@ public class MCCTeleOp extends OpMode {
         shoot();
         moveArm();
         moveGrabber();
-        switchTeleOpMode();
     }
 
     /**
@@ -45,13 +43,6 @@ public class MCCTeleOp extends OpMode {
     public void drive() {
         // todo mecanum drive (cubed?)
         // left and right stick for G1 - driving
-
-        // todo branch robot alignment (see video Justin sent on Discord)
-        if (gamepad1.b) {
-            // align to RED goal
-        } else if (gamepad1.x) {
-            // align to BLUE goal
-        }
     }
 
     /**
@@ -165,14 +156,5 @@ public class MCCTeleOp extends OpMode {
         telemetry.addLine("Grabber")
                 .addData("Position", robot.arm.grabber.getPosition())
                 .addData("State", robot.arm.grabberMode);
-    }
-
-    // todo branch switch teleop mode
-    public void switchTeleOpMode() {
-        if (gamepad1.left_trigger > 0.5) {
-            // switch teleop mode to remote
-        } else if (gamepad1.right_trigger > 0.5) {
-            // switch teleop mode to traditional
-        }
     }
 }
