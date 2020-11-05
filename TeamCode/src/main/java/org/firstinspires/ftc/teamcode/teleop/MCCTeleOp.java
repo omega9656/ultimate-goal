@@ -13,15 +13,15 @@ import org.firstinspires.ftc.teamcode.hardware.Shooter;
 public class MCCTeleOp extends OpMode {
     Robot robot;
 
-    @Override
     /** Initializes the robot */
+    @Override
     public void init() {
         robot = new Robot(hardwareMap);
         robot.init();
     }
 
-    @Override
     /** Continuously checks gamepads for input while the OpMode is running */
+    @Override
     public void loop() {
         drive();
         intake();
