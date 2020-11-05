@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Robot {
+    // todo set imu axis?
     public DeviceManager deviceManager;
 
     public Drivetrain drivetrain;
