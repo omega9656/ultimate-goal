@@ -4,22 +4,18 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class Intake {
-    public DcMotorEx left;
-    public DcMotorEx right;
-
+    public DcMotorEx motor;  // 13.7:1 goBILDA yellow jacket planetary
     public Mode state;
 
     public enum Mode {
-        IN(1, -1),
-        OUT(-0.3, 0.3),  // slightly lower power to avoid launching when outtaking
-        STOP(0, 0);
+        IN(1),
+        OUT(-0.3),  // lower power to avoid launching when outtaking
+        STOP(0);
 
-        public double leftPower;
-        public double rightPower;
+        public double power;
 
-        Mode(double leftPower, double rightPower) {
-            this.leftPower = leftPower;
-            this.rightPower = rightPower;
+        Mode(double power) {
+            this.power = power;
         }
     }
 
@@ -29,17 +25,13 @@ public class Intake {
      * @param deviceManager  the robot's device manager
      */
     public Intake(DeviceManager deviceManager) {
-        left = deviceManager.leftIntake;
-        right = deviceManager.rightIntake;
+        motor = deviceManager.intake;
 
-        // run motors without encoders
-        left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         // when power is set to 0, motors will stop and actively
         // resists any external force that might try to get the motor to move
-        left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // set default state
         state = Mode.STOP;
@@ -51,9 +43,7 @@ public class Intake {
      * @param mode  the intake's current run mode
      */
     public void run(Mode mode) {
-        left.setPower(mode.leftPower);
-        right.setPower(mode.rightPower);
-
+        motor.setPower(mode.power);
         state = mode;
     }
 
@@ -67,7 +57,7 @@ public class Intake {
         run(Mode.OUT);
     }
 
-    /** Stops the intake motors */
+    /** Stops running the intake */
     public void stop() {
         run(Mode.STOP);
     }
