@@ -138,23 +138,4 @@ public class Shooter {
         indexer.setPosition(IndexerMode.READY.servoPos);
         indexerMode = IndexerMode.READY;
     }
-
-    /**
-     * Returns <code>true</code> if the indexer has pushed the ring
-     * (the indexer is currently in SHOOT position)
-     * @return <code>true</code> if the indexer has pushed the ring
-     */
-    public boolean isRingPushed() {
-        return indexer.getPosition() == IndexerMode.SHOOT.servoPos;
-    }
-
-    /**
-     * Returns <code>true</code> if the indexer is ready to
-     * push another ring toward the flywheel (the indexer is
-     * currently in READY position)
-     * @return <code>true</code> if the indexer is ready to push another ring
-     */
-    public boolean isIndexerReady() {
-        return indexer.getPosition() == IndexerMode.READY.servoPos;
-    }
 }

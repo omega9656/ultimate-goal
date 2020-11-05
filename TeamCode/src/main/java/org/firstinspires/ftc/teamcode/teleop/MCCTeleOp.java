@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
@@ -12,12 +13,14 @@ import org.firstinspires.ftc.teamcode.hardware.Shooter;
 @TeleOp(name="MCC TeleOp")
 public class MCCTeleOp extends OpMode {
     Robot robot;
+    ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
 
     /** Initializes the robot */
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
         robot.init();
+        time.reset();
     }
 
     /** Continuously checks gamepads for input while the OpMode is running */
@@ -82,6 +85,9 @@ public class MCCTeleOp extends OpMode {
      * Otherwise, shooter motor stops
      */
     public void shoot() {
+        // time it takes for indexer to move from READY to SHOOT position
+        final double INDEXER_WAIT_TIME = 100; // milliseconds
+
         // --------- RUNNING THE FLYWHEEL ------------
         // flywheel motor is running if it's in SHOOT or SPEEDING_UP mode
         boolean flywheelRunning =
@@ -95,15 +101,15 @@ public class MCCTeleOp extends OpMode {
             robot.shooter.stopFlywheel();
         }
 
-
         // --------- ACTUALLY SHOOTING (MOVING INDEXER) ------------
         while (gamepad2.right_trigger > 0.5) {
             if (robot.shooter.isAtTargetVelocity()) {
                 robot.shooter.flywheelMode = Shooter.FlywheelMode.SHOOT;
 
-                if (robot.shooter.isIndexerReady()) {
+                if (robot.shooter.indexerMode == Shooter.IndexerMode.READY) {
                     robot.shooter.pushRing();
-                } else if (robot.shooter.isRingPushed()) {
+                    time.reset();
+                } else if (time.time() >= INDEXER_WAIT_TIME) {
                     robot.shooter.readyIndexer();
                 }
             }
@@ -163,9 +169,9 @@ public class MCCTeleOp extends OpMode {
 
     // todo branch switch teleop mode
     public void switchTeleOpMode() {
-        if (gamepad1.left_trigger > 0.1) {
+        if (gamepad1.left_trigger > 0.5) {
             // switch teleop mode to remote
-        } else if (gamepad1.right_trigger > 0.1) {
+        } else if (gamepad1.right_trigger > 0.5) {
             // switch teleop mode to traditional
         }
     }
