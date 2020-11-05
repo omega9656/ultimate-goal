@@ -4,10 +4,10 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
-import org.firstinspires.ftc.teamcode.hardware.Arm;
-import org.firstinspires.ftc.teamcode.hardware.Intake;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
+
+// todo branch state machine
 
 @TeleOp(name="MCC TeleOp")
 public class MCCTeleOp extends OpMode {
@@ -28,10 +28,27 @@ public class MCCTeleOp extends OpMode {
         shoot();
         moveArm();
         moveGrabber();
+        switchTeleOpMode();
     }
 
+    /**
+     * Allows the drivers to drive the robot with G1
+     * left and right joysticks. Also lets drivers
+     * automatically align the robot to face one of the alliance goals.
+     * G1 left, right joystick - drivetrain control
+     * G1 B button - align robot to face to red goal
+     * G1 X button - align robot to face blue goal
+     */
     public void drive() {
-        // TODO mecanum drive (cubed?)
+        // todo mecanum drive (cubed?)
+        // left and right stick for G1 - driving
+
+        // todo branch robot alignment (see video Justin sent on Discord)
+        if (gamepad1.b) {
+            // align to RED goal
+        } else if (gamepad1.x) {
+            // align to BLUE goal
+        }
     }
 
     /**
@@ -50,33 +67,59 @@ public class MCCTeleOp extends OpMode {
             robot.intake.stop();
         }
 
-        telemetry.addLine("Intake left")
-                .addData("Power", robot.intake.left.getPower())
-                .addData("Current", "%f amps", robot.intake.left.getCurrent(CurrentUnit.AMPS));
-        telemetry.addLine("Intake right")
-                .addData("Power", robot.intake.right.getPower())
-                .addData("Current", "%f amps", robot.intake.right.getCurrent(CurrentUnit.AMPS));
-        telemetry.addData("Intake state", robot.intake.state);
+        telemetry.addLine("Intake")
+                .addData("Power", robot.intake.motor.getPower())
+                .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
+                .addData("State", robot.intake.state);
+
+        // todo branch stall automation (reverse for half a sec and pray if current above stall current - see spec sheet)
     }
 
     /**
      * Runs shooter processes depending on gamepad input
      * and adds data for shooter telemetry
-     * G2 A button pressed runs shooter motor
+     * G2 A button pressed speeds up the flywheel to target shooting velocity
      * Otherwise, shooter motor stops
      */
     public void shoot() {
-        if (gamepad2.a) {
-            robot.shooter.shoot();
-        } else {
-            robot.shooter.stop();
+        // --------- RUNNING THE FLYWHEEL ------------
+        // flywheel motor is running if it's in SHOOT or SPEEDING_UP mode
+        boolean flywheelRunning =
+                (robot.shooter.flywheelMode == Shooter.FlywheelMode.SHOOT) ||
+                (robot.shooter.flywheelMode == Shooter.FlywheelMode.SPEEDING_UP);
+
+        if (gamepad2.a && !flywheelRunning) {
+            robot.shooter.speedUpFlywheel();
+        } else if (gamepad2.a) {
+            // pressing A again when the flywheel is running will stop the flywheel
+            robot.shooter.stopFlywheel();
         }
 
-        telemetry.addLine("Shooter")
-                .addData("Velocity", "%f ticks/sec", robot.shooter.motor.getVelocity())
-                .addData("Current", "%f amps", robot.shooter.motor.getCurrent(CurrentUnit.AMPS))
-                .addData("Power", robot.shooter.motor.getPower())
-                .addData("State", robot.shooter.state);
+
+        // --------- ACTUALLY SHOOTING (MOVING INDEXER) ------------
+        while (gamepad2.right_trigger > 0.5) {
+            if (robot.shooter.isAtTargetVelocity()) {
+                robot.shooter.flywheelMode = Shooter.FlywheelMode.SHOOT;
+
+                if (robot.shooter.isIndexerReady()) {
+                    robot.shooter.pushRing();
+                } else if (robot.shooter.isRingPushed()) {
+                    robot.shooter.readyIndexer();
+                }
+            }
+        }
+
+
+        // --------- TELEMETRY ------------
+        telemetry.addLine("Flywheel")
+                .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
+                .addData("Current", "%.3f amps", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS))
+                .addData("Power", robot.shooter.flywheel.getPower())
+                .addData("State", robot.shooter.flywheelMode);
+
+        telemetry.addLine("Indexer")
+                .addData("Position", robot.shooter.indexer.getPosition())
+                .addData("State", robot.shooter.indexerMode);
     }
 
     /**
@@ -97,7 +140,6 @@ public class MCCTeleOp extends OpMode {
 
         telemetry.addLine("Arm")
                 .addData("Position", robot.arm.joint.getTargetPosition())
-                .addData("Position tolerance", robot.arm.joint.getTargetPositionTolerance()) // todo ask what this is
                 .addData("State", robot.arm.jointPosition);
     }
 
@@ -117,5 +159,14 @@ public class MCCTeleOp extends OpMode {
         telemetry.addLine("Grabber")
                 .addData("Position", robot.arm.grabber.getPosition())
                 .addData("State", robot.arm.grabberMode);
+    }
+
+    // todo branch switch teleop mode
+    public void switchTeleOpMode() {
+        if (gamepad1.left_trigger > 0.1) {
+            // switch teleop mode to remote
+        } else if (gamepad1.right_trigger > 0.1) {
+            // switch teleop mode to traditional
+        }
     }
 }
