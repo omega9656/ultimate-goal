@@ -59,7 +59,7 @@ public class MCCTeleOp extends OpMode {
         if (gamepad2.left_bumper) {
             robot.intake.in();
 
-        // per https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
+            // per https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
             if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= 9.2) {
                 time.reset();
 
