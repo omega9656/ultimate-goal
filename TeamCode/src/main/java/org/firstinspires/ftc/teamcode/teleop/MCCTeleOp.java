@@ -18,7 +18,7 @@ public class MCCTeleOp extends OpMode {
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
-        robot.init();
+        robot.init(false);
         time.reset();
     }
 
@@ -30,7 +30,6 @@ public class MCCTeleOp extends OpMode {
         shoot();
         moveArm();
         moveGrabber();
-        switchTeleOpMode();
     }
 
     /**
