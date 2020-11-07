@@ -3,9 +3,8 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
-
-// javadocs: https://first-tech-challenge.github.io/FtcRobotController/6.0.1/RobotCore/com/qualcomm/robotcore/eventloop/opmode/OpMode.html
 
 @Autonomous(name="Red", group="MCC")
 public class Red extends LinearOpMode {
@@ -16,7 +15,9 @@ public class Red extends LinearOpMode {
         // ----- INIT -----
         // initialize robot hardware
         robot = new Robot(hardwareMap);
-        robot.init();
+        robot.init(true);
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         // detect height of rings and pick a path
         while (opModeIsActive()) {

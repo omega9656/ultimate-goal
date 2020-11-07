@@ -20,7 +20,7 @@ public class Intake {
     }
 
     /**
-     * Constructs an <code>Intake</code> object given
+     * Constructs an {@link Intake} object given
      * the robot's device manager
      * @param deviceManager  the robot's device manager
      */

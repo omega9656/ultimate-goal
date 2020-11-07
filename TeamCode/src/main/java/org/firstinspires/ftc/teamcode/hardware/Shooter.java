@@ -39,7 +39,7 @@ public class Shooter {
     }
 
     /**
-     * Constructs a <code>Shooter</code> object
+     * Constructs a {@link Shooter} object
      * given the robot's device manager
      * @param deviceManager  the robot's device manager
      */

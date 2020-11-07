@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
 @Autonomous(name="Blue", group="MCC")
@@ -14,7 +15,9 @@ public class Blue extends LinearOpMode {
         // ----- INIT -----
         // initialize robot hardware
         robot = new Robot(hardwareMap);
-        robot.init();
+        robot.init(true);
+
+        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         // detect height of rings and pick a path
         while (opModeIsActive()) {

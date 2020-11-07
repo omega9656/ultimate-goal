@@ -12,14 +12,14 @@ public class Drivetrain {
     public DcMotor frontRight;
 
     /**
-     * Constructs a <code>Drivetrain</code> object
+     * Constructs a {@link Drivetrain} object
      * @param deviceManager  the robot's device manager
      */
     public Drivetrain(DeviceManager deviceManager) {
-        backLeft = deviceManager.backLeftWheel;
-        backRight = deviceManager.backRightWheel;
-        frontLeft = deviceManager.frontLeftWheel;
-        frontRight = deviceManager.frontRightWheel;
+        backLeft = deviceManager.backLeft;
+        backRight = deviceManager.backRight;
+        frontLeft = deviceManager.frontLeft;
+        frontRight = deviceManager.frontRight;
 
         // set motor modes
         backLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

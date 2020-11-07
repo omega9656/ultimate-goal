@@ -18,7 +18,7 @@ public class MCCTeleOp extends OpMode {
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
-        robot.init();
+        robot.init(false);
         time.reset();
     }
 
@@ -79,8 +79,6 @@ public class MCCTeleOp extends OpMode {
                 .addData("Power", robot.intake.motor.getPower())
                 .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
                 .addData("State", robot.intake.state);
-
-        // todo branch stall automation (reverse for half a sec and pray if current above stall current - see spec sheet)
     }
 
     /**

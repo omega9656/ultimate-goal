@@ -8,7 +8,7 @@ import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
  * NOTE: For the most part, drive constants for Ultimate Goal have been copied exactly
  * from the last drive constants from Skystone since the drivetrains are very similar.
  * https://github.com/omega9656/skystone/blob/master/TeamCode/src/main/java/org/firstinspires/ftc/teamcode/drive/DriveConstants.java
- * TODO: More tuning may be needed.
+ * TODO: Tune track width and wheel base and anything else that needs it
  */
 
 
@@ -53,8 +53,7 @@ public class DriveConstants {
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
     // https://www.gobilda.com/96mm-mecanum-wheel-set-70a-durometer-bearing-supported-rollers/
-    // once we get the new mecanum wheels, change this to 1.88976 in (~48 mm)
-    public static double WHEEL_RADIUS = 1.9685; // inches (~50 mm)
+    public static double WHEEL_RADIUS = 1.8897; // inches (~48 mm)
 
     // default gearing value from com.qualcomm.hardware.motors.GoBILDA5202Series divided by actual ratio (19.2:1)
     public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
