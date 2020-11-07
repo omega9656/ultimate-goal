@@ -36,7 +36,11 @@ public class Robot {
         deviceManager.init(runningAuto);
 
         // construct software representations of subassemblies
-        drivetrain = new Drivetrain(deviceManager);
+        // only create Drivetrain object if running teleop (if auto, roadrunner handles it)
+        if (!runningAuto) {
+            drivetrain = new Drivetrain(deviceManager);
+        }
+
         intake = new Intake(deviceManager);
         shooter = new Shooter(deviceManager);
         arm = new Arm(deviceManager);
