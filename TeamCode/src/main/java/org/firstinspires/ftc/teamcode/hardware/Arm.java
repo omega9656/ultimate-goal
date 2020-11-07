@@ -49,7 +49,7 @@ public class Arm {
     }
 
     /**
-     * Constructs an <code>Arm</code> object
+     * Constructs an {@link Arm} object
      * given the robot's device manager
      * @param deviceManager  the robot's device manager
      */
