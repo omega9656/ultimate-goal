@@ -32,5 +32,8 @@ public class Drivetrain {
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        // todo may need to reverse direction of motors. All motors should rotate toward the front of the robot
+        // e.g. right motors are clockwise, left motors are counterclockwise
     }
 }
