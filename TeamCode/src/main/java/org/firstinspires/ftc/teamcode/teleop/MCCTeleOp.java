@@ -54,20 +54,22 @@ public class MCCTeleOp extends OpMode {
      */
     public void intake() {
         // time to reverse if intake motor current is above stall current
-        final double TIME_TO_PRAY = 500; //milliseconds
+        final double TIME_TO_PRAY = 500; // milliseconds
+
+        // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
+        final double STALL_CURRENT = 9.2; // amps
 
         if (gamepad2.left_bumper) {
             robot.intake.in();
 
-            // per https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
-            if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= 9.2) {
+            // todo fix logic - this will always reset
+            if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT) {
                 time.reset();
 
-                //will run in 0.5 second intervals until current is less than stall current
-                if (time.time() <= TIME_TO_PRAY){
+                // will run in 0.5 second intervals until current is less than stall current
+                if (time.time() <= TIME_TO_PRAY) {
                     robot.intake.out();
                 }
-
             }
         } else if (gamepad2.right_bumper) {
             robot.intake.out();
