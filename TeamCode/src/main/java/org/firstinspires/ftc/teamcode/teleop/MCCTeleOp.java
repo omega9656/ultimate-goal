@@ -67,8 +67,8 @@ public class MCCTeleOp extends OpMode {
             if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT) {
                 time.reset();
 
-                // will run in 0.5 second intervals until current is less than stall current
-                if (time.time() <= TIME_TO_PRAY) {
+                // will execute for entirety of time instead of running just once
+                while (time.time() <= TIME_TO_PRAY) {
                     robot.intake.out();
                 }
             }
