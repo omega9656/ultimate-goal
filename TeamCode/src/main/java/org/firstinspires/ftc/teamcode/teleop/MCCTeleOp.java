@@ -54,6 +54,7 @@ public class MCCTeleOp extends OpMode {
      */
     public void intake() {
         // time to reverse if intake motor current is above stall current
+        // TODO tune this as needed
         final double TIME_TO_PRAY = 500; // milliseconds
 
         // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
@@ -91,6 +92,7 @@ public class MCCTeleOp extends OpMode {
      */
     public void shoot() {
         // time it takes for indexer to move from READY to SHOOT position
+        // TODO tune this as needed
         final double INDEXER_WAIT_TIME = 100; // milliseconds
 
         // --------- RUNNING THE FLYWHEEL ------------
