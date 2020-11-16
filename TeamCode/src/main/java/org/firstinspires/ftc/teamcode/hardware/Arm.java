@@ -18,8 +18,8 @@ public class Arm {
     /** Grabber mode */
     public enum Mode {
         // TODO tune servo positions
-        CLOSE(0),
-        OPEN(0);
+        CLOSE(0.5),
+        OPEN(1);
 
         public double servoPos;
 

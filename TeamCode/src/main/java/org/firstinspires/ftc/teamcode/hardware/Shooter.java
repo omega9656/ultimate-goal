@@ -28,7 +28,7 @@ public class Shooter {
 
     public enum IndexerMode {
         // TODO tune servo positions
-        SHOOT(0),  // pushing the ring to the flywheel
+        SHOOT(0.3),  // pushing the ring to the flywheel
         READY(0);  // not pushing the ring
 
         public double servoPos;
