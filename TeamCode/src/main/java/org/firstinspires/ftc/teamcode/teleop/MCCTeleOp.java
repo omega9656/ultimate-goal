@@ -60,17 +60,22 @@ public class MCCTeleOp extends OpMode {
         // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
         final double STALL_CURRENT = 9.2; // amps
 
+        boolean stalled = false;
+
         if (gamepad2.left_bumper) {
             robot.intake.in();
 
-            // todo fix logic - this will always reset
-            if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT) {
+            // if the intake motor is stalling, run intake outward
+            // check !stalled because we only want to set power to make intake run outward ONCE
+            if ((robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT) && !stalled) {
+                stalled = true;
                 time.reset();
+                robot.intake.out();
+            }
 
-                // will execute for entirety of time instead of running just once
-                while (time.time() <= TIME_TO_PRAY) {
-                    robot.intake.out();
-                }
+            // if the time we run the intake outward is expired, stop the intake
+            if ((time.time() > TIME_TO_PRAY) && stalled) {
+                robot.intake.stop();
             }
         } else if (gamepad2.right_bumper) {
             robot.intake.out();
