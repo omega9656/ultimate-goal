@@ -13,6 +13,7 @@ import org.firstinspires.ftc.teamcode.hardware.Shooter;
 public class MCCTeleOp extends OpMode {
     Robot robot;
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
+    boolean stalled = false; // whether the intake motor is stalled
 
     /** Initializes the robot */
     @Override
@@ -120,8 +121,28 @@ public class MCCTeleOp extends OpMode {
      * </p>
      */
     public void intake() {
+        // time to reverse if intake motor current is above stall current
+        // TODO tune this as needed
+        final double WAIT_TIME = 500; // milliseconds
+
+        // https://www.gobilda.com/5202-series-yellow-jacket-planetary-gear-motor-13-7-1-ratio-435-rpm-3-3-5v-encoder/
+        final double STALL_CURRENT = 9.2; // amps
+
         if (gamepad2.left_bumper) {
             robot.intake.in();
+
+            // if the intake motor is stalling, run intake outward
+            if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT && !stalled) {
+                stalled = true;
+                robot.intake.out();
+                time.reset();
+            }
+
+            // if the time we run the intake outward is expired, stop the intake
+            if (time.time() > WAIT_TIME && stalled) {
+                robot.intake.stop();
+                stalled = false;
+            }
         } else if (gamepad2.right_bumper) {
             robot.intake.out();
         } else {
@@ -144,6 +165,7 @@ public class MCCTeleOp extends OpMode {
      */
     public void shoot() {
         // time it takes for indexer to move from READY to SHOOT position
+        // TODO tune this as needed
         final double INDEXER_WAIT_TIME = 100; // milliseconds
 
         // --------- RUNNING THE FLYWHEEL ------------
