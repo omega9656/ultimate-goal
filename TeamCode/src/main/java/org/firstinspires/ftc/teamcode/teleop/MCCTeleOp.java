@@ -29,10 +29,10 @@ public class MCCTeleOp extends OpMode {
         // TODO see if drivers prefer normal, squared, or cubed drive
         // TODO tune strafe correction constant
         drive(DriveMode.NORMAL, 1);
-        intake();
-        shoot();
-        moveArm();
-        moveGrabber();
+        intake(true);
+        shoot(true);
+        moveArm(true);
+        moveGrabber(true);
     }
 
     /**
@@ -119,8 +119,9 @@ public class MCCTeleOp extends OpMode {
      * G2 right bumper outtakes rings
      * Otherwise, intake is stopped
      * </p>
+     * @param showTelemetry  whether to display intake telemetry info
      */
-    public void intake() {
+    public void intake(boolean showTelemetry) {
         // time to reverse if intake motor current is above stall current
         // TODO tune this as needed
         final double WAIT_TIME = 500; // milliseconds
@@ -149,10 +150,13 @@ public class MCCTeleOp extends OpMode {
             robot.intake.stop();
         }
 
-        telemetry.addLine("Intake")
-                .addData("Power", robot.intake.motor.getPower())
-                .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
-                .addData("State", robot.intake.state);
+
+        if (showTelemetry) {
+            telemetry.addLine("Intake")
+                    .addData("Power", robot.intake.motor.getPower())
+                    .addData("Current", "%.3f amps", robot.intake.motor.getCurrent(CurrentUnit.AMPS))
+                    .addData("State", robot.intake.state);
+        }
     }
 
     /**
@@ -162,8 +166,9 @@ public class MCCTeleOp extends OpMode {
      * G2 A button pressed speeds up the flywheel to target shooting velocity
      * Otherwise, shooter motor stops
      * </p>
+     * @param showTelemetry  whether to display shooter telemetry info
      */
-    public void shoot() {
+    public void shoot(boolean showTelemetry) {
         // time it takes for indexer to move from READY to SHOOT position
         // TODO tune this as needed
         final double INDEXER_WAIT_TIME = 100; // milliseconds
@@ -197,15 +202,17 @@ public class MCCTeleOp extends OpMode {
 
 
         // --------- TELEMETRY ------------
-        telemetry.addLine("Flywheel")
-                .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
-                .addData("Current", "%.3f amps", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS))
-                .addData("Power", robot.shooter.flywheel.getPower())
-                .addData("State", robot.shooter.flywheelMode);
+        if (showTelemetry) {
+            telemetry.addLine("Flywheel")
+                    .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
+                    .addData("Current", "%.3f amps", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS))
+                    .addData("Power", robot.shooter.flywheel.getPower())
+                    .addData("State", robot.shooter.flywheelMode);
 
-        telemetry.addLine("Indexer")
-                .addData("Position", robot.shooter.indexer.getPosition())
-                .addData("State", robot.shooter.indexerMode);
+            telemetry.addLine("Indexer")
+                    .addData("Position", robot.shooter.indexer.getPosition())
+                    .addData("State", robot.shooter.indexerMode);
+        }
     }
 
     /**
@@ -216,8 +223,9 @@ public class MCCTeleOp extends OpMode {
      * G2 dpad down puts arm in down position
      * G2 dpad left puts arm in carry position
      * </p>
+     * @param showTelemetry  whether to display shooter telemetry info
      */
-    public void moveArm() {
+    public void moveArm(boolean showTelemetry) {
         if (gamepad2.dpad_up) {
             robot.arm.stow();
         } else if (gamepad2.dpad_down) {
@@ -226,9 +234,12 @@ public class MCCTeleOp extends OpMode {
             robot.arm.carry();
         }
 
-        telemetry.addLine("Arm")
-                .addData("Position", robot.arm.joint.getTargetPosition())
-                .addData("State", robot.arm.jointPosition);
+
+        if (showTelemetry) {
+            telemetry.addLine("Arm")
+                    .addData("Position", robot.arm.joint.getTargetPosition())
+                    .addData("State", robot.arm.jointPosition);
+        }
     }
 
     /**
@@ -238,16 +249,19 @@ public class MCCTeleOp extends OpMode {
      * G2 X button closes the grabber
      * G2 Y button opens the grabber
      * </p>
+     * @param showTelemetry  whether to display shooter telemetry info
      */
-    public void moveGrabber() {
+    public void moveGrabber(boolean showTelemetry) {
         if (gamepad2.x) {
             robot.arm.close();
         } else if (gamepad2.y) {
             robot.arm.open();
         }
 
-        telemetry.addLine("Grabber")
-                .addData("Position", robot.arm.grabber.getPosition())
-                .addData("State", robot.arm.grabberMode);
+        if (showTelemetry) {
+            telemetry.addLine("Grabber")
+                    .addData("Position", robot.arm.grabber.getPosition())
+                    .addData("State", robot.arm.grabberMode);
+        }
     }
 }
