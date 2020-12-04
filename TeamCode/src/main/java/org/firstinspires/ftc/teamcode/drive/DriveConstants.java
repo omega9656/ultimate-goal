@@ -52,8 +52,8 @@ public class DriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    // https://www.gobilda.com/96mm-mecanum-wheel-set-70a-durometer-bearing-supported-rollers/
-    public static double WHEEL_RADIUS = 1.8897; // inches (~48 mm)
+    // https://www.gobilda.com/3606-series-mecanum-wheel-set-bearing-supported-rollers-100mm-diameter/
+    public static double WHEEL_RADIUS = 1.9685; // inches (~50 mm)
 
     // default gearing value from com.qualcomm.hardware.motors.GoBILDA5202Series divided by actual ratio (19.2:1)
     public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
