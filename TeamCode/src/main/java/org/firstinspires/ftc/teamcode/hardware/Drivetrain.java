@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 public class Drivetrain {
-    // front is intake side of the robot
-    // right is the right side if you are facing front
+    // front is shooter side of the robot
+    // "right" means the right side if you are in the POV of the robot (facing front)
     // all motors are goBILDA 19.2:1 planetaries
     public DcMotor backLeft;
     public DcMotor backRight;
