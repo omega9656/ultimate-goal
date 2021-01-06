@@ -59,7 +59,6 @@ public class Arm {
 
         // assume it is manually put into stowed position at the start of each match
         joint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // stowed is considered 0
-        joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         // set default state
         grabberMode = Mode.OPEN;
@@ -88,6 +87,7 @@ public class Arm {
      */
     public void setJointPosition(Position position) {
         joint.setTargetPosition(position.targetPos);
+        joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         jointPosition = position;
     }
 

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Drivetrain {
     // front is shooter side of the robot
@@ -35,5 +36,7 @@ public class Drivetrain {
 
         // todo may need to reverse direction of motors. All motors should rotate toward the front of the robot
         // e.g. right motors are clockwise, left motors are counterclockwise
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 }

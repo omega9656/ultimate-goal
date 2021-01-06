@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Intake {
     public DcMotorEx motor;  // 13.7:1 goBILDA yellow jacket planetary
@@ -32,6 +33,8 @@ public class Intake {
         // when power is set to 0, motors will stop and actively
         // resists any external force that might try to get the motor to move
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // set default state
         state = Mode.STOP;
