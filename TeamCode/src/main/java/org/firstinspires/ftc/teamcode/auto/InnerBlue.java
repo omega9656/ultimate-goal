@@ -19,8 +19,8 @@ import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 import java.util.List;
 
-@Autonomous(name="Blue", group="MCC")
-public class Blue extends LinearOpMode {
+@Autonomous(name="Inner Blue", group="MCC")
+public class InnerBlue extends LinearOpMode {
     ElapsedTime time;
 
     Robot robot;
