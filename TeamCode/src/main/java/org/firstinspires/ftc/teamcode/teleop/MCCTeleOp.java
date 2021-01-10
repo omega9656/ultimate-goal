@@ -9,13 +9,20 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 
-@TeleOp(name="MCC TeleOp")
+@TeleOp(name="MCC TeleOp v16")
 public class MCCTeleOp extends OpMode {
     Robot robot;
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     boolean stalled = false; // whether the intake motor is stalled
+    boolean gamepad2_a_pressed = false;
 
-    /** Initializes the robot */
+    /**
+     * Initializes the robot
+     * <p>
+     * - Indexer will move into READY position upon init
+     * - Pre-condition: drive team has manually moved the arm into STOWED position
+     * </p>
+     */
     @Override
     public void init() {
         robot = new Robot(hardwareMap);
@@ -28,11 +35,15 @@ public class MCCTeleOp extends OpMode {
     public void loop() {
         // TODO see if drivers prefer normal, squared, or cubed drive
         // TODO tune strafe correction constant
-        drive(DriveMode.NORMAL, 1);
-        intake(true);
+        drive(DriveMode.NORMAL, 2);
+
+        // todo tested: can't intake - hardware issue? outtake is fine.
+        // todo also need to test if stall automation works, but that's low priority
+        intake(false, false);
+
         shoot(true);
-        moveArm(true);
-        moveGrabber(true);
+        moveArm(false);
+        moveGrabber(false);
     }
 
     /**
@@ -67,20 +78,6 @@ public class MCCTeleOp extends OpMode {
         double frontRightPower = vertical - horizontal - rotate;
         double backRightPower = vertical + horizontal - rotate;
 
-        // square or cube gamepad inputs
-        if (driveMode == DriveMode.SQUARED) {
-            // need to keep the sign, so multiply by absolute value of itself
-            frontLeftPower *= Math.abs(frontLeftPower);
-            backLeftPower *= Math.abs(backLeftPower);
-            frontRightPower *= Math.abs(frontRightPower);
-            backRightPower *= Math.abs(backRightPower);
-        } else if (driveMode == DriveMode.CUBED) {
-            frontLeftPower = Math.pow(frontLeftPower, 3);
-            backLeftPower = Math.pow(backLeftPower, 3);
-            frontRightPower = Math.pow(frontRightPower, 3);
-            backRightPower = Math.pow(backRightPower, 3);
-        } // if drive mode is normal, don't do anything
-
         // if there is a power level that is out of range
         if (
                 Math.abs(frontLeftPower) > 1 ||
@@ -104,6 +101,20 @@ public class MCCTeleOp extends OpMode {
             backRightPower /= max;
         }
 
+        // square or cube gamepad inputs
+        if (driveMode == DriveMode.SQUARED) {
+            // need to keep the sign, so multiply by absolute value of itself
+            frontLeftPower *= Math.abs(frontLeftPower);
+            backLeftPower *= Math.abs(backLeftPower);
+            frontRightPower *= Math.abs(frontRightPower);
+            backRightPower *= Math.abs(backRightPower);
+        } else if (driveMode == DriveMode.CUBED) {
+            frontLeftPower = Math.pow(frontLeftPower, 3);
+            backLeftPower = Math.pow(backLeftPower, 3);
+            frontRightPower = Math.pow(frontRightPower, 3);
+            backRightPower = Math.pow(backRightPower, 3);
+        } // if drive mode is normal, don't do anything
+
         // set final power values to motors
         robot.drivetrain.frontLeft.setPower(frontLeftPower);
         robot.drivetrain.backLeft.setPower(backLeftPower);
@@ -120,8 +131,9 @@ public class MCCTeleOp extends OpMode {
      * Otherwise, intake is stopped
      * </p>
      * @param showTelemetry  whether to display intake telemetry info
+     * @param stallAutomation  whether you want to enable stall automation
      */
-    public void intake(boolean showTelemetry) {
+    public void intake(boolean showTelemetry, boolean stallAutomation) {
         // time to reverse if intake motor current is above stall current
         // TODO tune this as needed
         final double WAIT_TIME = 500; // milliseconds
@@ -132,17 +144,19 @@ public class MCCTeleOp extends OpMode {
         if (gamepad2.left_bumper) {
             robot.intake.in();
 
-            // if the intake motor is stalling, run intake outward
-            if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT && !stalled) {
-                stalled = true;
-                robot.intake.out();
-                time.reset();
-            }
+            if (stallAutomation) {
+                // if the intake motor is stalling, run intake outward
+                if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT && !stalled) {
+                    stalled = true;
+                    robot.intake.out();
+                    time.reset();
+                }
 
-            // if the time we run the intake outward is expired, stop the intake
-            if (time.time() > WAIT_TIME && stalled) {
-                robot.intake.stop();
-                stalled = false;
+                // if the time we run the intake outward is expired, stop the intake
+                if (time.time() > WAIT_TIME && stalled) {
+                    robot.intake.stop();
+                    stalled = false;
+                }
             }
         } else if (gamepad2.right_bumper) {
             robot.intake.out();
@@ -164,44 +178,43 @@ public class MCCTeleOp extends OpMode {
      * and adds data for shooter telemetry
      * <p>
      * G2 A button pressed speeds up the flywheel to target shooting velocity
-     * Otherwise, shooter motor stops
+     * Pressing A button again stops the flywheel.
+     * Note that you have to press the A button relatively quickly
+     * because the cycle times are quick.
+     * G2 right trigger moves the indexer to actually "shoot" the ring.
      * </p>
      * @param showTelemetry  whether to display shooter telemetry info
      */
     public void shoot(boolean showTelemetry) {
         // time it takes for indexer to move from READY to SHOOT position
-        // TODO tune this as needed
         final double INDEXER_WAIT_TIME = 100; // milliseconds
 
         // --------- RUNNING THE FLYWHEEL ------------
-        // flywheel motor is running if it's in SHOOT or SPEEDING_UP mode
-        boolean flywheelRunning =
-                (robot.shooter.flywheelMode == Shooter.FlywheelMode.SHOOT) ||
-                (robot.shooter.flywheelMode == Shooter.FlywheelMode.SPEEDING_UP);
-
-        if (gamepad2.a && !flywheelRunning) {
+        // if this is the "first time" pressing G2 A button, speed up flywheel
+        if (gamepad2.a && !gamepad2_a_pressed) {
             robot.shooter.speedUpFlywheel();
+            gamepad2_a_pressed = true;
         } else if (gamepad2.a) {
-            // pressing A again when the flywheel is running will stop the flywheel
+            // pressing G2 A button again will stop the flywheel
             robot.shooter.stopFlywheel();
+            gamepad2_a_pressed = false;
         }
 
         // --------- ACTUALLY SHOOTING (MOVING INDEXER) ------------
-        while (gamepad2.right_trigger > 0.5) {
-            if (robot.shooter.isAtTargetVelocity()) {
-                robot.shooter.flywheelMode = Shooter.FlywheelMode.SHOOT;
+        // if G2 right trigger pressed and indexer in ready mode, push ring
+        if (gamepad2.right_trigger > 0.5 && robot.shooter.indexerMode == Shooter.IndexerMode.READY) {
+            robot.shooter.pushRing();
+            time.reset();
+        }
 
-                if (robot.shooter.indexerMode == Shooter.IndexerMode.READY) {
-                    robot.shooter.pushRing();
-                    time.reset();
-                } else if (time.time() >= INDEXER_WAIT_TIME) {
-                    robot.shooter.readyIndexer();
-                }
-            }
+        // if indexer in shoot mode and wait time has elapsed, move indexer back to ready position
+        if (robot.shooter.indexerMode == Shooter.IndexerMode.SHOOT && time.time() >= INDEXER_WAIT_TIME) {
+            robot.shooter.readyIndexer();
         }
 
 
         // --------- TELEMETRY ------------
+        // todo figure out how to make flywheel run faster - use telemetry to check current velocity
         if (showTelemetry) {
             telemetry.addLine("Flywheel")
                     .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())

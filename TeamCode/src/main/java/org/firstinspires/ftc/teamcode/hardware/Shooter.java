@@ -55,6 +55,7 @@ public class Shooter {
 
         // set default states
         flywheelMode = FlywheelMode.STOP;
+        indexer.setPosition(IndexerMode.READY.servoPos);
         indexerMode = IndexerMode.READY;
     }
 
@@ -92,6 +93,7 @@ public class Shooter {
         flywheel.setVelocity(0);
     }
 
+    // todo figure out if the isAtTargetVelocity methods are really needed and if they're programmed right
     /**
      * Returns <code>true</code> if the flywheel motor
      * is at default target velocity (within the default shooting

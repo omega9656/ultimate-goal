@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm {
@@ -17,9 +18,8 @@ public class Arm {
 
     /** Grabber mode */
     public enum Mode {
-        // TODO tune servo positions
         CLOSE(0.5),
-        OPEN(1);
+        OPEN(1); // better to keep it wide to allow us to grab wobble goal easily
 
         public double servoPos;
 
@@ -60,6 +60,8 @@ public class Arm {
         // assume it is manually put into stowed position at the start of each match
         joint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // stowed is considered 0
 
+        joint.setDirection(DcMotorSimple.Direction.REVERSE);
+
         // set default state
         grabberMode = Mode.OPEN;
         jointPosition = Position.STOWED;
@@ -86,8 +88,14 @@ public class Arm {
      * @param position  arm position
      */
     public void setJointPosition(Position position) {
+        // tell motor where to go
         joint.setTargetPosition(position.targetPos);
         joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // tell motor "how fast" to get there by setting power
+        joint.setPower(0.4);
+
+        // update joint state
         jointPosition = position;
     }
 
