@@ -9,12 +9,11 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 
-@TeleOp(name="MCC TeleOp v16")
+@TeleOp(name="MCC TeleOp v19")
 public class MCCTeleOp extends OpMode {
     Robot robot;
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     boolean stalled = false; // whether the intake motor is stalled
-    boolean gamepad2_a_pressed = false;
 
     /**
      * Initializes the robot
@@ -177,10 +176,8 @@ public class MCCTeleOp extends OpMode {
      * Runs shooter processes depending on gamepad input
      * and adds data for shooter telemetry
      * <p>
-     * G2 A button pressed speeds up the flywheel to target shooting velocity
-     * Pressing A button again stops the flywheel.
-     * Note that you have to press the A button relatively quickly
-     * because the cycle times are quick.
+     * G2 A button pressed speeds up the flywheel to target shooting velocity.
+     * G2 B button pressed stops flywheel.
      * G2 right trigger moves the indexer to actually "shoot" the ring.
      * </p>
      * @param showTelemetry  whether to display shooter telemetry info
@@ -190,14 +187,10 @@ public class MCCTeleOp extends OpMode {
         final double INDEXER_WAIT_TIME = 100; // milliseconds
 
         // --------- RUNNING THE FLYWHEEL ------------
-        // if this is the "first time" pressing G2 A button, speed up flywheel
-        if (gamepad2.a && !gamepad2_a_pressed) {
-            robot.shooter.speedUpFlywheel();
-            gamepad2_a_pressed = true;
-        } else if (gamepad2.a) {
-            // pressing G2 A button again will stop the flywheel
+        if (gamepad2.a) {
+            robot.shooter.speedUpFlywheel(1);
+        } else if (gamepad2.b) {
             robot.shooter.stopFlywheel();
-            gamepad2_a_pressed = false;
         }
 
         // --------- ACTUALLY SHOOTING (MOVING INDEXER) ------------
@@ -212,12 +205,12 @@ public class MCCTeleOp extends OpMode {
             robot.shooter.readyIndexer();
         }
 
-
         // --------- TELEMETRY ------------
         // todo figure out how to make flywheel run faster - use telemetry to check current velocity
         if (showTelemetry) {
             telemetry.addLine("Flywheel")
                     .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
+                    .addData("At target velocity?", robot.shooter.isAtTargetVelocity(1, 0.3))
                     .addData("Current", "%.3f amps", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS))
                     .addData("Power", robot.shooter.flywheel.getPower())
                     .addData("State", robot.shooter.flywheelMode);
