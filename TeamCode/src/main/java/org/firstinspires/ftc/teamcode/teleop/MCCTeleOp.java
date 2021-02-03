@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 
-@TeleOp(name="MCC TeleOp v19")
+@TeleOp(name="MCC TeleOp v23")
 public class MCCTeleOp extends OpMode {
     Robot robot;
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
@@ -143,6 +143,7 @@ public class MCCTeleOp extends OpMode {
         if (gamepad2.left_bumper) {
             robot.intake.in();
 
+            // todo test stall automation
             if (stallAutomation) {
                 // if the intake motor is stalling, run intake outward
                 if (robot.intake.motor.getCurrent(CurrentUnit.AMPS) >= STALL_CURRENT && !stalled) {
@@ -209,8 +210,9 @@ public class MCCTeleOp extends OpMode {
         // todo figure out how to make flywheel run faster - use telemetry to check current velocity
         if (showTelemetry) {
             telemetry.addLine("Flywheel")
-                    .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
-                    .addData("At target velocity?", robot.shooter.isAtTargetVelocity(1, 0.3))
+                    // todo revert velocity telemetry if needed
+                  //  .addData("Velocity", "%.3f ticks/sec", robot.shooter.flywheel.getVelocity())
+                  //  .addData("At target velocity?", robot.shooter.isAtTargetVelocity(1, 0.3))
                     .addData("Current", "%.3f amps", robot.shooter.flywheel.getCurrent(CurrentUnit.AMPS))
                     .addData("Power", robot.shooter.flywheel.getPower())
                     .addData("State", robot.shooter.flywheelMode);
