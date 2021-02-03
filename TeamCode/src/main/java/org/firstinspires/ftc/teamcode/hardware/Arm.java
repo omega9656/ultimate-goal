@@ -19,7 +19,7 @@ public class Arm {
     /** Grabber mode */
     public enum Mode {
         CLOSE(0.5),
-        OPEN(1); // better to keep it wide to allow us to grab wobble goal easily
+        OPEN(0.7); // better to keep it wide to allow us to grab wobble goal easily
 
         public double servoPos;
 
@@ -63,7 +63,8 @@ public class Arm {
         joint.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // set default state
-        grabberMode = Mode.OPEN;
+        close();
+        grabberMode = Mode.CLOSE;
         jointPosition = Position.STOWED;
     }
 

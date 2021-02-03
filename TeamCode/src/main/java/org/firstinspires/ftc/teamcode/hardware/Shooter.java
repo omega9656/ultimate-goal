@@ -16,6 +16,7 @@ public class Shooter {
     public FlywheelMode flywheelMode;
     public IndexerMode indexerMode;
 
+    // todo tune these values
     public static final double DEFAULT_SHOOTING_SPEED = 0.8;  // 80% of max speed
     public static final double DEFAULT_SHOOTING_SPEED_TOLERANCE = 0.01;  // +/- 1% of target velocity
 
@@ -27,7 +28,6 @@ public class Shooter {
     }
 
     public enum IndexerMode {
-        // TODO tune servo positions
         SHOOT(0.3),  // pushing the ring to the flywheel
         READY(0);  // not pushing the ring
 
@@ -55,8 +55,7 @@ public class Shooter {
 
         // set default states
         flywheelMode = FlywheelMode.STOP;
-        indexer.setPosition(IndexerMode.READY.servoPos);
-        indexerMode = IndexerMode.READY;
+        readyIndexer();
     }
 
     /**
@@ -91,6 +90,7 @@ public class Shooter {
     /** Stops running the flywheel motor */
     public void stopFlywheel() {
         flywheel.setVelocity(0);
+        flywheelMode = FlywheelMode.STOP;
     }
 
     // todo figure out if the isAtTargetVelocity methods are really needed and if they're programmed right

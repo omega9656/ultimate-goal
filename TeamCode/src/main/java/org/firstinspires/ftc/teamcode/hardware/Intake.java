@@ -10,7 +10,7 @@ public class Intake {
 
     public enum Mode {
         IN(1),
-        OUT(-0.3),  // lower power to avoid launching when outtaking
+        OUT(-0.8),  // lower power to avoid launching when outtaking
         STOP(0);
 
         public double power;
