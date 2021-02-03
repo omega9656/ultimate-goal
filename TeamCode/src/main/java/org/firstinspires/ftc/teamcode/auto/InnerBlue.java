@@ -18,8 +18,9 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 import java.util.List;
+import java.util.Vector;
 
-@Autonomous(name="Inner Blue", group="MCC")
+@Autonomous(name="Inner Blue v6", group="MCC")
 public class InnerBlue extends LinearOpMode {
     ElapsedTime time;
 
@@ -30,8 +31,8 @@ public class InnerBlue extends LinearOpMode {
     // TODO tune coordinates/angles as needed
     Pose2d startPose = new Pose2d(-60, 25, 0); // inner blue starting line
 
-    public final double TOWER_SHOT_ANGLE = 15; // rotate to face blue tower goal
-    public final Pose2d BEHIND_LAUNCH_LINE = new Pose2d(0, 25, Math.toRadians(TOWER_SHOT_ANGLE));
+    public final double TOWER_SHOT_ANGLE = 15; // (degrees) rotate to face blue tower goal
+    public final Vector2d BEHIND_LAUNCH_LINE = new Vector2d(0, 25);
 
     public final Vector2d TARGET_ZONE_A = new Vector2d(10, 40);
     public final Vector2d TARGET_ZONE_B = new Vector2d(0, 0);
@@ -95,49 +96,46 @@ public class InnerBlue extends LinearOpMode {
             // (typically 1.78 or 16/9).
 
             // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
-            // tfod.setZoom(2.5, 1.78);
+            tfod.setZoom(1.5, 1.78);
         }
 
         char targetZone = 'A'; // default to target zone A if CV can't classify the ring stack
 
-        // detect ring stack and pick a path
-        while (opModeIsActive()) {
-            while (opModeIsActive()) {
-                if (tfod != null) {
-                    // getUpdatedRecognitions() will return null if no new information is available since
-                    // the last time that call was made.
-                    List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
-                    if (updatedRecognitions != null) {
-                        telemetry.addData("# Object Detected", updatedRecognitions.size());
+        // detect ring stack and pick a path during init
+        while (!isStopRequested() && !opModeIsActive()) {
+            if (tfod != null) {
+                // getUpdatedRecognitions() will return null if no new information is available since
+                // the last time that call was made.
+                List<Recognition> updatedRecognitions = tfod.getUpdatedRecognitions();
+                if (updatedRecognitions != null) {
+                    telemetry.addData("# Object Detected", updatedRecognitions.size());
 
-                        if (updatedRecognitions.size() == 0) {
-                            // no ring stacks detected
-                            targetZone = 'A';
-                        } else {
-                            // list is not empty, so ring stack of 1 or 4 was detected
-                            // step through the list of recognitions and display boundary info.
-                            int i = 0;
-                            for (Recognition recognition : updatedRecognitions) {
-                                telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
-                                telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
-                                        recognition.getLeft(), recognition.getTop());
-                                telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
-                                        recognition.getRight(), recognition.getBottom());
+                    if (updatedRecognitions.size() == 0) {
+                        // no ring stacks detected
+                        targetZone = 'A';
+                    } else {
+                        // list is not empty, so ring stack of 1 or 4 was detected
+                        // step through the list of recognitions and display boundary info.
+                        int i = 0;
+                        for (Recognition recognition : updatedRecognitions) {
+                            telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                            telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
+                                    recognition.getLeft(), recognition.getTop());
+                            telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
+                                    recognition.getRight(), recognition.getBottom());
 
-                                // set target zone based on label
-                                if (recognition.getLabel().equals("Single")) {
-                                    targetZone = 'B';
-                                } else if (recognition.getLabel().equals("Quad")) {
-                                    targetZone = 'C';
-                                }
+                            // set target zone based on label
+                            if (recognition.getLabel().equals("Single")) {
+                                targetZone = 'B';
+                            } else if (recognition.getLabel().equals("Quad")) {
+                                targetZone = 'C';
                             }
-
                         }
-                        telemetry.addData("Target Zone", targetZone);
-                        telemetry.update();
                     }
+                    telemetry.addData("Target Zone", targetZone);
                 }
             }
+            telemetry.update();
         }
 
         if (tfod != null) {
@@ -184,7 +182,7 @@ public class InnerBlue extends LinearOpMode {
         // move to right before launch line
         // shoot 3 pre-loaded rings into high goal at optimal speed
         trajectories[0] = drive.trajectoryBuilder(startPose)
-                .lineToLinearHeading(BEHIND_LAUNCH_LINE)
+                .lineTo(BEHIND_LAUNCH_LINE)
                 .addDisplacementMarker(() -> {
                     shootThreeRings();
                 })
@@ -222,12 +220,13 @@ public class InnerBlue extends LinearOpMode {
     }
 
     /**
-     * Follows the trajectories that were built
+     * Follows the trajectories that were built and executes turns
      * @param trajectories  array of built trajectories
      */
     public void followPath(Trajectory[] trajectories) {
         // move to launch line and shoot
         drive.followTrajectory(trajectories[0]);
+        drive.turn(Math.toRadians(TOWER_SHOT_ANGLE));
 
         // move to target zone
         drive.followTrajectory(trajectories[1]);

@@ -42,7 +42,7 @@ public class DriveConstants {
      * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(38, 0.8, 16);
+    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(38, 0.8, 16); // todo reset to 0 and then tune?
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -59,7 +59,7 @@ public class DriveConstants {
     public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
 
     // fusion calculated: 15.5906 in (~396 mm)
-    public static double TRACK_WIDTH = 10; // tuned track width from skystone
+    public static double TRACK_WIDTH = 10; // tuned track width from skystone todo might need to tune
 
     public static double WHEEL_BASE = 13.5; // wheel base from skystone - not sure if this is used?
 
