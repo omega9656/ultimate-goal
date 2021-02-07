@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /*
  * NOTE: For the most part, drive constants for Ultimate Goal have been copied exactly
@@ -38,11 +37,12 @@ public class DriveConstants {
      * Set this flag to false if drive encoders are not present and an alternative localization
      * method is in use (e.g., tracking wheels).
      *
-     * If using the built-in motor velocity PID, update
-     * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
+     * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
+     * from DriveVelocityPIDTuner.
      */
     public static final boolean RUN_USING_ENCODER = true;
-    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(38, 0.8, 16); // todo reset to 0 and then tune?
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(38, 0.8, 16,
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV)); // todo reset to 0 and then tune?
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -77,15 +77,13 @@ public class DriveConstants {
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
      * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
      * Runner is designed to enable faster autonomous motion, it is a good idea for testing to start
-     * small and gradually increase them later after everything is working. The velocity and
-     * acceleration values are required, and the jerk values are optional (setting a jerk of 0.0
-     * forces acceleration-limited profiling). All distance units are inches.
+     * small and gradually increase them later after everything is working. All distance units are
+     * inches.
      */
-    public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            45.0, 30.0, 0.0,
-            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
-    );
-
+    public static double MAX_VEL = 45;
+    public static double MAX_ACCEL = 30;
+    public static double MAX_ANG_VEL = Math.toRadians(180.0);
+    public static double MAX_ANG_ACCEL = Math.toRadians(180.0);
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
@@ -95,8 +93,8 @@ public class DriveConstants {
         return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;
     }
 
-    public static double getMotorVelocityF() {
+    public static double getMotorVelocityF(double ticksPerSecond) {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
-        return 32767 * 60.0 / (MAX_RPM * TICKS_PER_REV);
+        return 32767 / ticksPerSecond;
     }
 }
