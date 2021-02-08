@@ -40,9 +40,14 @@ public class DriveConstants {
      * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
      * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(38, 0.8, 16,
-            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV)); // todo reset to 0 and then tune?
+    public static final boolean RUN_USING_ENCODER = false; // using feedforward
+    // old values from tuned skystone bot
+//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(38, 0.8, 16,
+//            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+
+    // ignore this bc using feedforward
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -53,15 +58,12 @@ public class DriveConstants {
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
     // https://www.gobilda.com/3606-series-mecanum-wheel-set-bearing-supported-rollers-100mm-diameter/
-    public static double WHEEL_RADIUS = 1.9685; // inches (~50 mm)
+    public static double WHEEL_RADIUS = 1.9685; // in (~50 mm)
 
-    // default gearing value from com.qualcomm.hardware.motors.GoBILDA5202Series divided by actual ratio (19.2:1)
-    public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
+    public static double GEAR_RATIO = 1.3650793651; // thanks noah. ratio is 1:1, but multiplied that by offset during straight test
 
     // fusion calculated: 15.5906 in (~396 mm)
-    public static double TRACK_WIDTH = 10; // tuned track width from skystone todo might need to tune
-
-    public static double WHEEL_BASE = 13.5; // wheel base from skystone - not sure if this is used?
+    public static double TRACK_WIDTH = 11; // tuned track width from TurnTest is there. measured is 16 in.
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -69,8 +71,8 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
+    public static double kV = 0.022;
+    public static double kA = 0.005;
     public static double kStatic = 0;
 
     /*
@@ -80,10 +82,18 @@ public class DriveConstants {
      * small and gradually increase them later after everything is working. All distance units are
      * inches.
      */
-    public static double MAX_VEL = 45;
-    public static double MAX_ACCEL = 30;
-    public static double MAX_ANG_VEL = Math.toRadians(180.0);
-    public static double MAX_ANG_ACCEL = Math.toRadians(180.0);
+    // max vel and accel were tuned during feedforward velocity tuning
+    public static double MAX_VEL = 40;
+    public static double MAX_ACCEL = 40;
+    public static double MAX_ANG_VEL = 3.680; // empirically found from MaxAngularVeloTuner
+    public static double MAX_ANG_ACCEL = 3.680; // 1:1 arbitrary ratio btwn max ang vel and max ang accel
+
+    // todo in order
+    // BackAndForth below (basically done here)
+    //   heading PID - start kP low, then increase. if shaky/oscillating, increase kD
+    //   translational PID - start kP low, if overshooting/oscillating, increase kD
+    // follower pid (for fine tuning if needed)
+    // SplineTest
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;

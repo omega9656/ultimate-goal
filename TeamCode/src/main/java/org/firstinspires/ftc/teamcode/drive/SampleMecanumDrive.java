@@ -63,10 +63,19 @@ import static org.firstinspires.ftc.teamcode.drive.DriveConstants.kV;
  */
 @Config
 public class SampleMecanumDrive extends MecanumDrive {
+    // these coefficients that work for back and forth test, but make the robot not actually go straight/strafe
+//    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(20, 0, 0.1);
+//    public static PIDCoefficients HEADING_PID = new PIDCoefficients(3, 0, 0);
+//
+//    public static double LATERAL_MULTIPLIER = 2.3; // empirically found using back and forth test
+
+    // for some reason IRL the robot goes straight and strafes correctly if the translational and
+    // heading PID coefficients are set to zero. however, the field on the ftc dashboard says the path is way off
+    // so I guess I'll just use forward, strafe, and point turns (that was what we were going to do anyway...)
     public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
     public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
-    public static double LATERAL_MULTIPLIER = 1;
+    public static double LATERAL_MULTIPLIER = 1.07; // empirically found using StrafeTest
 
     public static double VX_WEIGHT = 1;
     public static double VY_WEIGHT = 1;
