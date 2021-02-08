@@ -9,8 +9,8 @@ import org.firstinspires.ftc.teamcode.hardware.Robot;
 import org.firstinspires.ftc.teamcode.hardware.Shooter;
 
 
-@TeleOp(name="MCC TeleOp v23")
-public class MCCTeleOp extends OpMode {
+@TeleOp(name="Squared Drive")
+public class SquaredDrive extends OpMode {
     Robot robot;
     ElapsedTime time = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
     boolean stalled = false; // whether the intake motor is stalled
@@ -34,7 +34,7 @@ public class MCCTeleOp extends OpMode {
     public void loop() {
         // TODO see if drivers prefer normal, squared, or cubed drive
         // TODO tune strafe correction constant
-        drive(DriveMode.NORMAL, 2);
+        drive(DriveMode.SQUARED, 2);
 
         // todo tested: can't intake - hardware issue? outtake is fine.
         // todo also need to test if stall automation works, but that's low priority
