@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.hardware.Shooter;
 import java.util.List;
 import java.util.Vector;
 
-@Autonomous(name="Inner Blue v6", group="MCC")
+@Autonomous(name="Inner Blue v10", group="MCC")
 public class InnerBlue extends LinearOpMode {
     ElapsedTime time;
 
@@ -146,7 +146,11 @@ public class InnerBlue extends LinearOpMode {
 
         // ----- START ----
         // run selected path
-        executeAutoPath(targetZone);
+        // todo fix force stop?
+        if (opModeIsActive()) {
+            executeAutoPath(targetZone);
+        }
+
 
         // ----- STOP -----
         if (isStopRequested()) return;
@@ -155,7 +159,7 @@ public class InnerBlue extends LinearOpMode {
 
     /**
      * Executes the (MCC) auto path, completing the following tasks:
-     * - shoot 3 pre-loaded rings into high goal
+     * - shoot 3 pre-loaded rings into low goal
      * - drop off pre-loaded wobble goal
      * - park on launch line
      *
@@ -167,122 +171,105 @@ public class InnerBlue extends LinearOpMode {
      * @param targetZone  target zone for wobble goal drop off. Either A, B, or C.
      */
     public void executeAutoPath(char targetZone) {
-        Trajectory[] trajectories = buildTrajectories(targetZone);
-        followPath(trajectories);
-    }
+        // --- DISTANCE CONSTANTS ---
+        double DIST_TO_LAUNCH_LINE = 65; // distance from start to launch line
 
-    /**
-     * Builds the trajectories for the auto path
-     * @param targetZone  target zone for wobble goal drop off. Either A, B, or C.
-     * @return an array of built {@link Trajectory} objects
-     */
-    public Trajectory[] buildTrajectories(char targetZone) {
-        Trajectory[] trajectories = new Trajectory[3];
+        double DIST_TO_TARGET_ZONE; // distance from launch line to target zone
+        double DIST_TO_BACK_UP; // todo add description
+        if (targetZone == 'A') {
+            DIST_TO_TARGET_ZONE = 5;
+            DIST_TO_BACK_UP = 15;
+        } else if (targetZone == 'B') {
+            DIST_TO_TARGET_ZONE = 5;
+            DIST_TO_BACK_UP = 1;
+        } else { // target zone is C
+            DIST_TO_TARGET_ZONE = 10;
+            DIST_TO_BACK_UP = 15;
+        }
+
+
+        // --- BUILD TRAJECTORIES --
 
         // move to right before launch line
         // shoot 3 pre-loaded rings into high goal at optimal speed
-        trajectories[0] = drive.trajectoryBuilder(startPose)
-                .lineTo(BEHIND_LAUNCH_LINE)
-                .addDisplacementMarker(() -> {
-                    shootThreeRings();
-                })
+        Trajectory traj1 = drive.trajectoryBuilder(startPose)
+                .forward(DIST_TO_LAUNCH_LINE) // move 60 in forward to launch line
                 .build();
-
-        // choose the right target zone coordinates
-        Vector2d TARGET_ZONE_POS;
-        if (targetZone == 'A') {
-            TARGET_ZONE_POS = TARGET_ZONE_A;
-        } else if (targetZone == 'B') {
-            TARGET_ZONE_POS = TARGET_ZONE_B;
-        } else { // target zone is C
-            TARGET_ZONE_POS = TARGET_ZONE_C;
-        }
 
         // move to specified target zone
-        trajectories[1] = drive.trajectoryBuilder(trajectories[0].end())
-                .lineTo(TARGET_ZONE_POS) // TODO use lineTo with heading change when odo ready
+        Trajectory traj2;
+        if (targetZone == 'A') {
+            traj2 = drive.trajectoryBuilder(traj1.end())
+                    .back(10)
+                    .build();
+        } else if (targetZone == 'B') {
+            traj2 = drive.trajectoryBuilder(traj1.end())
+                    .forward(DIST_TO_TARGET_ZONE) // todo tune
+                    .build();
+        } else { // target zone is C
+            traj2 = drive.trajectoryBuilder(traj1.end())
+                    .forward(DIST_TO_TARGET_ZONE) // todo tune
+                    .build();
+        }
+
+        // move robot backward to target zone to drop off wobble goal
+        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+                .back(DIST_TO_BACK_UP)
                 .build();
 
-        // park on launch line
-        // target zone A: already parked, don't do anything
-        trajectories[2] = null;
-        if (targetZone == 'B') {
-            trajectories[2] = drive.trajectoryBuilder(trajectories[1].end())
-                    .lineTo(new Vector2d(10, 15))
-                    .build();
-        } else if (targetZone == 'C') {
-            trajectories[2] = drive.trajectoryBuilder(trajectories[1].end())
-                    .lineTo(TARGET_ZONE_A)
-                    .build();
-        }
+        // strafe right to park on launch line
+        Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
+                .strafeRight(DIST_TO_TARGET_ZONE) // dist from launch to target zone is same
+                .build();
 
-        return trajectories;
-    }
 
-    /**
-     * Follows the trajectories that were built and executes turns
-     * @param trajectories  array of built trajectories
-     */
-    public void followPath(Trajectory[] trajectories) {
-        // move to launch line and shoot
-        drive.followTrajectory(trajectories[0]);
-        drive.turn(Math.toRadians(TOWER_SHOT_ANGLE));
+        // --- FOLLOW TRAJECTORIES ---
+        drive.followTrajectory(traj1); // go to launch line to get ready to shoot
+        drive.turn(Math.toRadians(TOWER_SHOT_ANGLE)); // turn toward tower shot
+        shootThreeRings(); // shoot 3 rings into low goal
+        drive.turn(Math.toRadians(-TOWER_SHOT_ANGLE)); // undo the turning of the robot toward the tower goal
 
-        // move to target zone
-        drive.followTrajectory(trajectories[1]);
+        drive.followTrajectory(traj2); // go to forward target zone
+        drive.turn(Math.toRadians(-100)); // turn robot to the right (offset from -90 deg)
+        drive.followTrajectory(traj3); // go backward to target zone
+        dropOffWobbleGoal(); // drop off wobble goal
 
-        // turn to drop off wobble goal
-        /* Turn angle explanation:
-         * We want robot to face center of field (turn 90 degrees)
-         * that way the wobble goal arm is facing the target zone.
-         * We also need to turn an additional TOWER_SHOT_ANGLE degrees to offset
-         * how much the robot turns when shooting the 3 rings.
-         */
-        drive.turn(Math.toRadians(-90 - TOWER_SHOT_ANGLE));
-        dropOffWobbleGoal();
+        drive.followTrajectory(traj4); // park on launch line
 
-        // park on launch line (if not already parked)
-        if (trajectories[2] != null) {
-            drive.followTrajectory(trajectories[2]);
-        }
     }
 
     /**
      * Shoots 3 rings into the blue tower goal
      */
     public void shootThreeRings() {
-        // todo tune this as needed
-        final int INDEXER_WAIT_TIME = 100; // milliseconds
+        final int WAIT_TIME = 700; // ms
 
-        int ringsShot = 0;
-        robot.shooter.speedUpFlywheel();
+        robot.shooter.speedUpFlywheel(1);
+        sleep(1500); // ms
 
-        while (ringsShot < 3) {
-            if (robot.shooter.isAtTargetVelocity()) {
-                robot.shooter.flywheelMode = Shooter.FlywheelMode.SHOOT;
-
-                if (robot.shooter.indexerMode == Shooter.IndexerMode.READY) {
-                    robot.shooter.pushRing();
-                    time.reset();
-                    ringsShot++;
-                } else if (time.time() >= INDEXER_WAIT_TIME) {
-                    robot.shooter.readyIndexer();
-                }
-            }
+        for (int i = 0; i < 3; i++) {
+            robot.shooter.pushRing();
+            sleep(WAIT_TIME);
+            robot.shooter.readyIndexer();
+            sleep(WAIT_TIME);
         }
+
+        robot.shooter.stopFlywheel();
     }
 
     /**
      * Drops off the wobble goal
      */
     public void dropOffWobbleGoal() {
-        // todo tune sleeps as needed
+        // todo tune wait time
+        final long WAIT_TIME = 500; // ms
+
         robot.arm.down();
-        sleep(300);
+        sleep(WAIT_TIME);
         robot.arm.open();
-        sleep(150);
-        robot.arm.carry();
-        sleep(300);
+        sleep(WAIT_TIME);
+        robot.arm.stow();
+        sleep(WAIT_TIME);
     }
 
 
