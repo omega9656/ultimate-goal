@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class Drivetrain {
-    // front is intake side of the robot
-    // right is the right side if you are facing front
+    // front is shooter side of the robot
+    // "right" means the right side if you are in the POV of the robot (facing front)
     // all motors are goBILDA 19.2:1 planetaries
     public DcMotor backLeft;
     public DcMotor backRight;
@@ -33,7 +34,8 @@ public class Drivetrain {
         frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // todo may need to reverse direction of motors. All motors should rotate toward the front of the robot
-        // e.g. right motors are clockwise, left motors are counterclockwise
+        // All motors should rotate toward the front of the robot
+        frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 }

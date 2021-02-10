@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Arm {
@@ -17,9 +18,8 @@ public class Arm {
 
     /** Grabber mode */
     public enum Mode {
-        // TODO tune servo positions
         CLOSE(0.5),
-        OPEN(1);
+        OPEN(0.7); // better to keep it wide to allow us to grab wobble goal easily
 
         public double servoPos;
 
@@ -39,7 +39,12 @@ public class Arm {
 
         // 180 deg CCW from STOWED (horizontally straight across)
         // used when grabbing/releasing the wobble goal on the ground
-        DOWN(degreesToTicks(180));
+        DOWN(degreesToTicks(180)),
+
+        // 135 deg CCW from STOWED
+        // used when putting the wobble goal over the wall
+        // is not 180 deg because that would hit the top of the field wall
+        OVER_WALL(degreesToTicks(135));
 
         public int targetPos;
 
@@ -59,10 +64,12 @@ public class Arm {
 
         // assume it is manually put into stowed position at the start of each match
         joint.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // stowed is considered 0
-        joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        joint.setDirection(DcMotorSimple.Direction.REVERSE);
 
         // set default state
-        grabberMode = Mode.OPEN;
+        close();
+        grabberMode = Mode.CLOSE;
         jointPosition = Position.STOWED;
     }
 
@@ -87,7 +94,14 @@ public class Arm {
      * @param position  arm position
      */
     public void setJointPosition(Position position) {
+        // tell motor where to go
         joint.setTargetPosition(position.targetPos);
+        joint.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        // tell motor "how fast" to get there by setting power
+        joint.setPower(0.4);
+
+        // update joint state
         jointPosition = position;
     }
 
@@ -104,6 +118,11 @@ public class Arm {
     /** Puts the joint in the down position */
     public void down() {
         setJointPosition(Position.DOWN);
+    }
+
+    /** Puts the joint in the over wall position */
+    public void over_wall() {
+        setJointPosition(Position.OVER_WALL);
     }
 
     /**

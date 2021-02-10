@@ -1,8 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDCoefficients;
-import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 
 /*
  * NOTE: For the most part, drive constants for Ultimate Goal have been copied exactly
@@ -38,11 +37,17 @@ public class DriveConstants {
      * Set this flag to false if drive encoders are not present and an alternative localization
      * method is in use (e.g., tracking wheels).
      *
-     * If using the built-in motor velocity PID, update
-     * MOTOR_VELO_PID with the tuned coefficients from DriveVelocityPIDTuner.
+     * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
+     * from DriveVelocityPIDTuner.
      */
-    public static final boolean RUN_USING_ENCODER = true;
-    public static PIDCoefficients MOTOR_VELO_PID = new PIDCoefficients(38, 0.8, 16);
+    public static final boolean RUN_USING_ENCODER = false; // using feedforward
+    // old values from tuned skystone bot
+//    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(38, 0.8, 16,
+//            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
+
+    // ignore this bc using feedforward
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+            getMotorVelocityF(MAX_RPM / 60 * TICKS_PER_REV));
 
     /*
      * These are physical constants that can be determined from your robot (including the track
@@ -52,16 +57,13 @@ public class DriveConstants {
      * angular distances although most angular parameters are wrapped in Math.toRadians() for
      * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    // https://www.gobilda.com/96mm-mecanum-wheel-set-70a-durometer-bearing-supported-rollers/
-    public static double WHEEL_RADIUS = 1.8897; // inches (~48 mm)
+    // https://www.gobilda.com/3606-series-mecanum-wheel-set-bearing-supported-rollers-100mm-diameter/
+    public static double WHEEL_RADIUS = 1.9685; // in (~50 mm)
 
-    // default gearing value from com.qualcomm.hardware.motors.GoBILDA5202Series divided by actual ratio (19.2:1)
-    public static double GEAR_RATIO = 99.5 / 19.2; // output (wheel) speed / input (motor) speed
+    public static double GEAR_RATIO = 1.3650793651; // thanks noah. ratio is 1:1, but multiplied that by offset during straight test
 
     // fusion calculated: 15.5906 in (~396 mm)
-    public static double TRACK_WIDTH = 10; // tuned track width from skystone
-
-    public static double WHEEL_BASE = 13.5; // wheel base from skystone - not sure if this is used?
+    public static double TRACK_WIDTH = 11; // tuned track width from TurnTest is there. measured is 16 in.
 
     /*
      * These are the feedforward parameters used to model the drive motor behavior. If you are using
@@ -69,23 +71,29 @@ public class DriveConstants {
      * motor encoders or have elected not to use them for velocity control, these values should be
      * empirically tuned.
      */
-    public static double kV = 1.0 / rpmToVelocity(MAX_RPM);
-    public static double kA = 0;
+    public static double kV = 0.022;
+    public static double kA = 0.005;
     public static double kStatic = 0;
 
     /*
      * These values are used to generate the trajectories for you robot. To ensure proper operation,
      * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
      * Runner is designed to enable faster autonomous motion, it is a good idea for testing to start
-     * small and gradually increase them later after everything is working. The velocity and
-     * acceleration values are required, and the jerk values are optional (setting a jerk of 0.0
-     * forces acceleration-limited profiling). All distance units are inches.
+     * small and gradually increase them later after everything is working. All distance units are
+     * inches.
      */
-    public static DriveConstraints BASE_CONSTRAINTS = new DriveConstraints(
-            45.0, 30.0, 0.0,
-            Math.toRadians(180.0), Math.toRadians(180.0), 0.0
-    );
+    // max vel and accel were tuned during feedforward velocity tuning
+    public static double MAX_VEL = 40;
+    public static double MAX_ACCEL = 40;
+    public static double MAX_ANG_VEL = 3.680; // empirically found from MaxAngularVeloTuner
+    public static double MAX_ANG_ACCEL = 3.680; // 1:1 arbitrary ratio btwn max ang vel and max ang accel
 
+    // todo in order
+    // BackAndForth below (basically done here)
+    //   heading PID - start kP low, then increase. if shaky/oscillating, increase kD
+    //   translational PID - start kP low, if overshooting/oscillating, increase kD
+    // follower pid (for fine tuning if needed)
+    // SplineTest
 
     public static double encoderTicksToInches(double ticks) {
         return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
@@ -95,8 +103,8 @@ public class DriveConstants {
         return rpm * GEAR_RATIO * 2 * Math.PI * WHEEL_RADIUS / 60.0;
     }
 
-    public static double getMotorVelocityF() {
+    public static double getMotorVelocityF(double ticksPerSecond) {
         // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
-        return 32767 * 60.0 / (MAX_RPM * TICKS_PER_REV);
+        return 32767 / ticksPerSecond;
     }
 }
