@@ -39,7 +39,12 @@ public class Arm {
 
         // 180 deg CCW from STOWED (horizontally straight across)
         // used when grabbing/releasing the wobble goal on the ground
-        DOWN(degreesToTicks(180));
+        DOWN(degreesToTicks(180)),
+
+        // 135 deg CCW from STOWED
+        // used when putting the wobble goal over the wall
+        // is not 180 deg because that would hit the top of the field wall
+        OVER_WALL(degreesToTicks(135));
 
         public int targetPos;
 
@@ -113,6 +118,11 @@ public class Arm {
     /** Puts the joint in the down position */
     public void down() {
         setJointPosition(Position.DOWN);
+    }
+
+    /** Puts the joint in the over wall position */
+    public void over_wall() {
+        setJointPosition(Position.OVER_WALL);
     }
 
     /**

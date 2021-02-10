@@ -240,6 +240,8 @@ public class CubedDrive extends OpMode {
             robot.arm.down();
         } else if (gamepad2.dpad_left) {
             robot.arm.carry();
+        } else if (gamepad2.dpad_right) {
+            robot.arm.over_wall();
         }
 
 
