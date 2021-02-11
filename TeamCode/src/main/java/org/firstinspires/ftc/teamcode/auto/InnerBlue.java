@@ -139,13 +139,11 @@ public class InnerBlue extends LinearOpMode {
 
         // ----- START ----
         // run selected path
-        // todo fix force stop?
-        if (opModeIsActive()) {
+        if (opModeIsActive() && !isStopRequested()) {
             executeAutoPath(targetZone);
         }
 
-
-        // ----- STOP -----
+        // ---- STOP ----
         if (isStopRequested()) return;
     }
 
@@ -165,6 +163,7 @@ public class InnerBlue extends LinearOpMode {
      */
     public void executeAutoPath(char targetZone) {
         // --- DISTANCE CONSTANTS ---
+        double DIST_RING_STACK_AVOID = 6;
         double DIST_TO_LAUNCH_PT = 62; // distance from start to launch point
 
         double DIST_TO_TARGET_ZONE; // distance from launch line to target zone
@@ -179,9 +178,9 @@ public class InnerBlue extends LinearOpMode {
             DIST_TO_BACK_UP = 1;
             DIST_TO_STRAFE = 27;
         } else { // target zone is C
-            DIST_TO_TARGET_ZONE = 20;
+            DIST_TO_TARGET_ZONE = 23;
             DIST_TO_BACK_UP = 10;
-            DIST_TO_STRAFE = 45;
+            DIST_TO_STRAFE = 48;
         }
 
 
@@ -189,6 +188,10 @@ public class InnerBlue extends LinearOpMode {
 
         // move to right before launch line
         // shoot 3 pre-loaded rings into high goal at optimal speed
+        Trajectory traj0 = drive.trajectoryBuilder(startPose)
+                .strafeRight(DIST_RING_STACK_AVOID) // to avoid hitting the ring stack
+                .build();
+
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
                 .forward(DIST_TO_LAUNCH_PT) // move 60 in forward to launch line
                 .build();
@@ -221,6 +224,7 @@ public class InnerBlue extends LinearOpMode {
 
 
         // --- FOLLOW TRAJECTORIES ---
+        drive.followTrajectory(traj0); // strafe right to avoid hitting ring stack
         drive.followTrajectory(traj1); // go to launch line to get ready to shoot
         drive.turn(Math.toRadians(TOWER_SHOT_ANGLE)); // turn toward tower shot
         shootThreeRings(); // shoot 3 rings into low goal
@@ -258,15 +262,12 @@ public class InnerBlue extends LinearOpMode {
      * Drops off the wobble goal
      */
     public void dropOffWobbleGoal() {
-        // todo tune wait time
-        final long WAIT_TIME = 500; // ms
-
         robot.arm.down();
-        sleep(WAIT_TIME);
+        sleep(1000);
         robot.arm.open();
-        sleep(WAIT_TIME);
+        sleep(500);
         robot.arm.stow();
-        sleep(WAIT_TIME);
+        sleep(1000);
     }
 
 

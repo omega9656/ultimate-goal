@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.hardware.Robot;
 
-@Disabled
 @TeleOp(name="Test Drivetrain v4", group="Test")
 public class TestDrivetrain extends OpMode {
     Robot robot;
@@ -20,8 +19,14 @@ public class TestDrivetrain extends OpMode {
     @Override
     public void loop() {
         // test motor directions
-        double power = -gamepad1.left_stick_y; // y axis is flipped
-        robot.drivetrain.backLeft.setPower(power);
-        telemetry.addData("Power", power);
+        double frontLeftPower = -gamepad1.left_stick_y; // y axis is flipped
+        robot.drivetrain.frontLeft.setPower(frontLeftPower);
+        telemetry.addData("Front Left Power Input", frontLeftPower);
+        telemetry.addData("Front Left Power Measured", robot.drivetrain.frontLeft.getPower());
+
+        double backLeftPower = -gamepad1.right_stick_y; // y axis is flipped
+        robot.drivetrain.backLeft.setPower(backLeftPower);
+        telemetry.addData("Back Left Power Input", backLeftPower);
+        telemetry.addData("Back Left Power Measured", robot.drivetrain.backLeft.getPower());
     }
 }
