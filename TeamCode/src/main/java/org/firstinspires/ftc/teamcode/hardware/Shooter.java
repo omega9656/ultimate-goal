@@ -28,7 +28,7 @@ public class Shooter {
     }
 
     public enum IndexerMode {
-        SHOOT(0.3),  // pushing the ring to the flywheel
+        SHOOT(0.35),  // pushing the ring to the flywheel
         READY(0);  // not pushing the ring
 
         public double servoPos;

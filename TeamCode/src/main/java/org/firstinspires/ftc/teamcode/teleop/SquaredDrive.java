@@ -38,11 +38,11 @@ public class SquaredDrive extends OpMode {
 
         // todo tested: can't intake - hardware issue? outtake is fine.
         // todo also need to test if stall automation works, but that's low priority
-        intake(false, false);
+        intake(true, false);
 
         shoot(true);
-        moveArm(false);
-        moveGrabber(false);
+        moveArm(true);
+        moveGrabber(true);
     }
 
     /**

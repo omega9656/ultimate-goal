@@ -27,16 +27,9 @@ public class InnerBlue extends LinearOpMode {
     Robot robot;
     SampleMecanumDrive drive;
 
-    // coordinate constants
-    // TODO tune coordinates/angles as needed
     Pose2d startPose = new Pose2d(-60, 25, 0); // inner blue starting line
 
     public final double TOWER_SHOT_ANGLE = 15; // (degrees) rotate to face blue tower goal
-    public final Vector2d BEHIND_LAUNCH_LINE = new Vector2d(0, 25);
-
-    public final Vector2d TARGET_ZONE_A = new Vector2d(10, 40);
-    public final Vector2d TARGET_ZONE_B = new Vector2d(0, 0);
-    public final Vector2d TARGET_ZONE_C = new Vector2d(0, 40);
 
     // CV stuff
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
@@ -172,19 +165,23 @@ public class InnerBlue extends LinearOpMode {
      */
     public void executeAutoPath(char targetZone) {
         // --- DISTANCE CONSTANTS ---
-        double DIST_TO_LAUNCH_LINE = 65; // distance from start to launch line
+        double DIST_TO_LAUNCH_PT = 62; // distance from start to launch point
 
         double DIST_TO_TARGET_ZONE; // distance from launch line to target zone
-        double DIST_TO_BACK_UP; // todo add description
+        double DIST_TO_BACK_UP; // distance robot needs to back up to be next to target zone after moving to launch point
+        double DIST_TO_STRAFE; // distance robot needs to strafe from wobble goal drop off point to launch line
         if (targetZone == 'A') {
             DIST_TO_TARGET_ZONE = 5;
             DIST_TO_BACK_UP = 15;
+            DIST_TO_STRAFE = 5;
         } else if (targetZone == 'B') {
-            DIST_TO_TARGET_ZONE = 5;
-            DIST_TO_BACK_UP = 1;
-        } else { // target zone is C
             DIST_TO_TARGET_ZONE = 10;
-            DIST_TO_BACK_UP = 15;
+            DIST_TO_BACK_UP = 1;
+            DIST_TO_STRAFE = 27;
+        } else { // target zone is C
+            DIST_TO_TARGET_ZONE = 20;
+            DIST_TO_BACK_UP = 10;
+            DIST_TO_STRAFE = 45;
         }
 
 
@@ -193,7 +190,7 @@ public class InnerBlue extends LinearOpMode {
         // move to right before launch line
         // shoot 3 pre-loaded rings into high goal at optimal speed
         Trajectory traj1 = drive.trajectoryBuilder(startPose)
-                .forward(DIST_TO_LAUNCH_LINE) // move 60 in forward to launch line
+                .forward(DIST_TO_LAUNCH_PT) // move 60 in forward to launch line
                 .build();
 
         // move to specified target zone
@@ -204,11 +201,11 @@ public class InnerBlue extends LinearOpMode {
                     .build();
         } else if (targetZone == 'B') {
             traj2 = drive.trajectoryBuilder(traj1.end())
-                    .forward(DIST_TO_TARGET_ZONE) // todo tune
+                    .forward(DIST_TO_TARGET_ZONE)
                     .build();
         } else { // target zone is C
             traj2 = drive.trajectoryBuilder(traj1.end())
-                    .forward(DIST_TO_TARGET_ZONE) // todo tune
+                    .forward(DIST_TO_TARGET_ZONE)
                     .build();
         }
 
@@ -219,7 +216,7 @@ public class InnerBlue extends LinearOpMode {
 
         // strafe right to park on launch line
         Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .strafeRight(DIST_TO_TARGET_ZONE) // dist from launch to target zone is same
+                .strafeRight(DIST_TO_STRAFE)
                 .build();
 
 
@@ -242,18 +239,18 @@ public class InnerBlue extends LinearOpMode {
      * Shoots 3 rings into the blue tower goal
      */
     public void shootThreeRings() {
-        final int WAIT_TIME = 700; // ms
-
         robot.shooter.speedUpFlywheel(1);
         sleep(1500); // ms
 
-        for (int i = 0; i < 3; i++) {
+        // run loop 4 times because sometimes the 3rd ring is missed
+        for (int i = 0; i < 4; i++) {
             robot.shooter.pushRing();
-            sleep(WAIT_TIME);
+            sleep(500);
             robot.shooter.readyIndexer();
-            sleep(WAIT_TIME);
+            sleep(700);
         }
 
+        sleep(500);
         robot.shooter.stopFlywheel();
     }
 
